@@ -6,6 +6,7 @@
   margin:0;
   box-sizing:border-box;
 }
+
 body {
     font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
     font-size: 1.2rem;
@@ -25,6 +26,38 @@ html {
   display: table;
   clear: both;
 }
+
+.vertical-center{
+    position: relative;
+    top: 50%;
+    -webkit-transform:translateY(-50%);
+    transform: translateY(-50%);
+}
+
+/*************************************
+        Clear
+*************************************/
+.clearfix:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+
+.clearfix {
+    display: block;
+}
+
+html[xmlns] .clearfix {
+    display: block;
+}
+
+* html .clearfix {
+    height: 1%;
+}
+
 
 /*************************************
         Pages Layout
@@ -51,6 +84,7 @@ html {
 	-moz-transform-style: preserve-3d;
 	transform-style: preserve-3d;
 }
+
 [data-role="page"].activePage {
            display:block;
             z-index:10;
@@ -66,6 +100,7 @@ html {
   width:100%;
   background-color: rgba(0,0,0,0.82);
 }
+
 [data-role=modal]{
   display:none;
   position:fixed;
@@ -85,14 +120,14 @@ html {
 /* ------------ Header ------------ */
 /* -------------------------------- */
 header{
-  text-align: center;
+  	text-align: center;
     margin-top: 2rem;
 }
 
-[data-role=gridView]{
+[data-role="gridView"]{
   list-style:none;
 }
-[data-role=gridView] li{
+[data-role="gridView"] li{
   color:#FF4591;
   cursor:pointer;
 
@@ -117,4 +152,39 @@ header{
   .col-4:first-child {
     margin-left: 0;
   }
+
+/************** Col - 2 *************/
+footer.col-container{
+  margin: 0;
+}
+
+.col-2{
+    float: left;
+    width: 50%;
+    height: 4rem;
+}
+
+/*************************************
+        Footer
+*************************************/
+footer {
+    color: black;
+    background-color: white;
+    /* Adjust position of footer with respect to main content div.*/
+    position: fixed;
+    bottom: 0;
+    height: 100px; /* same height as header. */
+    width: 100%;
+    z-index: 10;
+}
+
+/*************************************
+        SVG Icons styling
+*************************************/
+svg[data-icon-name],
+svg[data-icon-animate]{
+    width: 32px;
+    height: 32px;
+}
+
 

@@ -18,7 +18,7 @@ var appClass = function(){
 
                 /* Each page contains a list view.
                 Add tap/double tap event listeners to the corresponding list view */
-                var listView = pagesArray[i].querySelector('ul[data-role="listview"]');
+                var listView = pagesArray[i].querySelector('ul[data-role="gridView"]');
 
                 /* Relate tap and double tap events to list view of contacts using hammer API */
                 var listHammerManager = new Hammer(listView);
@@ -222,6 +222,8 @@ var appClass = function(){
                     init : init
         }
     };
+
+    console.log("Going to load svg images");
     var svgIcons = new svgClass();
     var siteNavigator = new siteNavigatorClass();
 
@@ -250,6 +252,10 @@ var appClass = function(){
         //add button and navigation listeners
         siteNavigator.init();
 
+    }
+
+    return {
+        init: init
     }
 };
 
