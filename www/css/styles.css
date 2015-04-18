@@ -10,32 +10,16 @@
 body {
     font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
     font-size: 1.2rem;
-}
-html {
-  box-sizing: border-box;
-}
-
-*, *:before, *:after {
-  box-sizing: inherit;
-  padding: 0;
-  margin: 0;
-}
-
-.clearfix:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-.vertical-center{
-    position: relative;
-    top: 50%;
-    -webkit-transform:translateY(-50%);
-    transform: translateY(-50%);
+    background-image: url("../img/ivory-cream-colored-leather-texture.jpg");
+    min-height: 100%;
+	background-size: cover;
+	background-attachment: fixed;
+	background-repeat: no-repeat;
+	background-position: center center;
 }
 
 /*************************************
-        Clear
+        ClearFix
 *************************************/
 .clearfix:after {
     content: ".";
@@ -59,29 +43,34 @@ html[xmlns] .clearfix {
 }
 
 
+.vertical-center{
+    position: relative;
+    top: 50%;
+    -webkit-transform:translateY(-50%);
+    transform: translateY(-50%);
+}
+
+
 /*************************************
         Pages Layout
 *************************************/
 [data-role=page]{
   position:absolute;
   z-index:5;
-  top:0;
+  top:5rem;
   left:0;
   width:100%;
   display:none;
   min-height:100%;
   color:#FFFFFF;
-  background-color:#FF66A4;
+/*    background-image: url("paper.gif");*/
   padding:1rem;
   overflow: hidden;
 	-webkit-backface-visibility: hidden;
-	-moz-backface-visibility: hidden;
 	backface-visibility: hidden;
 	-webkit-transform: translate3d(0, 0, 0);
-	-moz-transform: translate3d(0, 0, 0);
 	transform: translate3d(0, 0, 0);
 	-webkit-transform-style: preserve-3d;
-	-moz-transform-style: preserve-3d;
 	transform-style: preserve-3d;
 }
 
@@ -119,9 +108,17 @@ html[xmlns] .clearfix {
 
 /* ------------ Header ------------ */
 /* -------------------------------- */
+/*#C8B6A3  #FBF9F8  #F6F4F1*/
 header{
   	text-align: center;
-    margin-top: 2rem;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  margin-top: 1.75rem;
+  z-index: 15;
+  background-color: #F6F4F1;
+  color: #A98D71;
+  padding: 1rem;
 }
 
 [data-role="gridView"]{
