@@ -108,16 +108,16 @@ html[xmlns] .clearfix {
 
 /* ------------ Header ------------ */
 /* -------------------------------- */
-/*#C8B6A3  #FBF9F8  #F6F4F1*/
+/*#C8B6A3  #FBF9F8  #F6F4F1 #A98D71 #664D34*/
 header{
-  	text-align: center;
+  text-align: center;
   position: fixed;
   width: 100%;
   top: 0;
-  margin-top: 1.75rem;
+/*  margin-top: 1.75rem;*/
   z-index: 15;
   background-color: #F6F4F1;
-  color: #A98D71;
+  color: #755F48;
   padding: 1rem;
 }
 
@@ -125,7 +125,6 @@ header{
   list-style:none;
 }
 [data-role="gridView"] li{
-  color:#FF4591;
   cursor:pointer;
 
 }
@@ -167,8 +166,8 @@ footer .col-container{
         Footer
 *************************************/
 footer {
-    color: black;
-    background-color: white;
+    color: #755F48;
+    background-color: #F6F4F1;
     position: fixed;
     bottom: 0;
     height: 60px; /* same height as header. */
