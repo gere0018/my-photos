@@ -76,11 +76,14 @@ html[xmlns] .clearfix {
   left:0;
   width:100%;
   display:none;
-  min-height:100%;
+  height: 100%;
+  /*min-height:100%;*/
+
   color: #755F48;
 /*    background-image: url("paper.gif");*/
   padding:1rem;
-  overflow: hidden;
+  /*overflow: hidden;*/
+  overflow-y: scroll;
 	-webkit-backface-visibility: hidden;
 	backface-visibility: hidden;
 	-webkit-transform: translate3d(0, 0, 0);
@@ -138,6 +141,13 @@ html[xmlns] .clearfix {
   width: 90%;
   height: 100%;
   border: 1px dashed #755F48;
+}
+#takePhoto{
+  overflow-y: hidden;
+}
+
+#takePhoto .col-container{
+  height: 50%;
 }
 
 #takePhoto .col-2{
