@@ -1,17 +1,49 @@
-var prepareDelete = function(){
-        console.log("Delete items");
-        var deleteBtn = document.querySelectorAll('svg[data-icon-name="delete"]');
-        for(var i=0;i<deleteBtn.length;i++){
-            console.log("inside loop " + deleteBtn);
-            var hammerDelete = new Hammer(deleteBtn[i]);
-            hammerDelete.on("tap", handleDelete);
-            }
+var serverConnection = function(id){
+    var deviceId = id;
+    console.log("device id = "+ id);
 
+    var list = function(){
+
+    }
+
+    var save = function(){
+
+    }
+
+    var get = function(){
+
+    }
+
+    var remove = function(){
+
+    }
+
+    return {
+        list: list,
+        save: save,
+        get: get,
+        remove:remove
+    }
 }
-var handleDelete = function(ev){
-    console.log("handle Delete");
-    var itemToDelete = ev.target;
-     itemToDelete.parentElement.remove();
 
+var gridviewClass = function(){
+
+    var create = function(){
+
+    }
+
+    var remove = function(){
+
+    }
+
+    var append = function(){
+
+    }
+
+    return{
+        create: create,
+        remove: remove,
+        append: append
+    }
 }
 

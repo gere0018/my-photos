@@ -2,6 +2,8 @@ var appClass = function(){
 
     var pages = {};
     var links = {};
+    var uuid = 0 ;
+    var customAajax;
 
     var siteNavigatorClass = function(){
 
@@ -21,12 +23,12 @@ var appClass = function(){
             delete pagesArray; //Free the memory
 
 
-            var listView = pages["viewPhotos"].querySelector('ul[data-role="gridView"]');
+            var gridView = pages["viewPhotos"].querySelector('ul[data-role="gridView"]');
 
             /* Relate tap and double tap events to list view of contacts using hammer API */
-            var listHammerManager = new Hammer(listView);
+            var gridHammerManager = new Hammer(gridView);
 
-            listHammerManager.on("tap", handleSingleTapGridview);
+            gridHammerManager.on("tap", handleSingleTapGridview);
 
             /* add listener for the main navigation tabs.*/
             var linksArray = document.querySelectorAll('[data-role="pagelink"]');
@@ -58,6 +60,12 @@ var appClass = function(){
 
             }
             delete modalsArray; //Free the memory
+
+            var deleteButtonsArray = document.querySelectorAll('svg[data-icon-name="delete"]');
+            for(var i=0;i<deleteButtonsArray.length;i++){
+                var deleteBtnHammerManager = new Hammer(deleteButtonsArray[i]);
+                deleteBtnHammerManager.on("tap", handleDelete);
+            }
 
             doPageTransition(null, "viewPhotos");
 
@@ -132,41 +140,40 @@ var appClass = function(){
             removeModalWindow();
         }
 
-
+        var handleDelete = function(ev){
+            console.log(ev.target);
+            var itemToDelete = ev.target;
+            // itemToDelete.parentElement.remove();
+        }
 
         var handleSingleTapGridview = function(ev){
 
             var currentPageId = document.URL.split("#")[1];
-            console.log("Single tap event has been recognized inside page:"+currentPageId);
+            console.log("Single tap event has been recognized on grid");
 
             /* Get which list item that has been tapped.*/
             var currentTarget = ev.target;
-            var listItemId = currentTarget.getAttribute("data-ref");
+            var gridItemId = currentTarget.getAttribute("data-ref");
             while(!listItemId){
                 currentTarget = currentTarget.parentNode;
-                listItemId = currentTarget.getAttribute("data-ref");
+                gridItemId = currentTarget.getAttribute("data-ref");
             }
-            var listItem = currentTarget;
+            var gridItemId = currentTarget;
 
             /* Make sure that we find a valid list item */
-            if(listItemId){
-                switch (currentPageId){
-                    case "viewPhotos":
-                        /* TODO: trigger ajax to get bigger image size for the thumbnail. */
-                        break;
-                    case "takePhoto":
-                        break;
-                    default:
-                        /*Do nothing*/
-                }
+            if(gridItemId){
+
+                /* TODO: Delete image from database.*/
+
+                /* Delete item from grid view.*/
 
                 var outClass = "pt-page-scaleDown";
                 var inClass = "pt-page-scaleUp";
 
-                doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+                // doPageTransition(currentPageId,destPageId,outClass,inClass,true);
 
             }else{
-                console.error("Failed to find valid list item id");
+                console.error("Failed to find valid grid item id");
             }
         }
 
@@ -263,9 +270,9 @@ var appClass = function(){
         }
     };
 
-    console.log("Going to load svg images");
     var svgIcons = new svgClass();
     var siteNavigator = new siteNavigatorClass();
+    var photosGridview = new gridviewClass();
 
     var init = function(){
         document.addEventListener("deviceready", onDeviceReady, false);
@@ -274,6 +281,10 @@ var appClass = function(){
 
     var onDeviceReady = function(){
         console.log("Device is ready");
+        uuid = device.uuid;
+        console.log(uuid);
+
+        customAajax = new serverConnection(uuid);
         /* TODO: add camera preparation code. */
     }
 
@@ -292,8 +303,6 @@ var appClass = function(){
 
         //add button and navigation listeners
         siteNavigator.init();
-        prepareDelete();
-
     }
 
     return {
