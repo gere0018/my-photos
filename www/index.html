@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="msapplication-tap-highlight" content="no" />
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height"/>
         <link href="css/animations.css" rel="stylesheet"/>
         <link rel="stylesheet" type="text/css" href="css/styles.css" />
         <title>My Photos</title>
@@ -16,76 +16,74 @@
                     <h1>Photos</h1>
                 </header>
 <!-- ************************** Nehmat view Photos section *************************  -->
-            <div data-role= "page" id="viewPhotos" class = "activePage">
+            <div data-role= "page" id="viewPhotos" class = "active-page">
                 <ul data-role= "gridView" class="col-container clearfix">
-                    <li class="col-4">
+                    <li data-ref="1" class="col-4">
                         <p> text - 1</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
-
-                    <li class="col-4">
+                    <li data-ref="2" class="col-4">
                         <p> text - 2</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
-                    <li class="col-4">
+                    <li data-ref="3" class="col-4">
                         <p> text - 3</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
-                   <li class="col-4">
+                   <li data-ref="4" class="col-4">
                        <p> text - 4</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
-                    <li class="col-4">
+                    <li data-ref="5" class="col-4">
                         <p> text - 5</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
-                    <li class="col-4">
+                    <li data-ref="6" class="col-4">
                         <p> text - 6</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
-                    <li class="col-4">
+                    <li data-ref="7" class="col-4">
                         <p> text - 7</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
-                    <li class="col-4">
+                    <li data-ref="8" class="col-4">
                         <p> text - 8</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
-                    <li class="col-4">
+                    <li data-ref="9" class="col-4">
                         <p> text - 9</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
-                    <li class="col-4">
+                    <li data-ref="10" class="col-4">
                         <p> text - 10</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
-                    <li class="col-4">
+                    <li data-ref="11" class="col-4">
                         <p> text - 11</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
-                    <li class="col-4">
+                    <li data-ref="12" class="col-4">
                         <p> text - 12</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
-                    <li class="col-4">
+                    <li data-ref="13" class="col-4">
                         <p> text - 13</p>
                         <img src="http://placehold.it/180x180">
                         <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
                     </li>
                 </ul>
-
             </div>
 
 
@@ -97,19 +95,24 @@
                 <p class="event received">Device is Ready</p>
             </div>
 
+<!-- ************************** Sticky footer section ***************************  -->
             <footer data-role="footer">
-                <div class="col-container clearfix">
-                    <div class="col-2">
-                        <svg data-icon-name="grid" viewBox="0 0 400 400"></svg>
-                        <p>Photos</p>
-                    </div>
-
-                    <div class="col-2">
-                        <svg data-icon-name="camera" viewBox="0 0 400 400"></svg>
-                        <p>Camera</p>
-                    </div>
-                </div>
-
+                <nav role="navigation" class="nav">
+                    <ul class="col-container clearfix">
+                        <li class="col-2">
+                            <a href="#viewPhotos" data-role="pagelink" class="active-link">
+                                <svg data-icon-name="grid" viewBox="0 0 400 400"></svg>
+                                <p>Photos</p>
+                            </a>
+                        </li>
+                        <li class="col-2">
+                            <a href="#takePhoto" data-role="pagelink">
+                                <svg data-icon-name="camera" viewBox="0 0 400 400"></svg>
+                                <p>Camera</p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </footer>
 <!-- *******************************************************************************  -->
         </div>

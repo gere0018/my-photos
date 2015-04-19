@@ -79,7 +79,7 @@ html[xmlns] .clearfix {
 	transform-style: preserve-3d;
 }
 
-[data-role="page"].activePage {
+[data-role="page"].active-page {
            display:block;
             z-index:10;
 }
@@ -183,6 +183,19 @@ footer {
     font-size: 0.75rem;
 }
 
+.nav ul{
+    list-style: none;
+}
+
+.nav ul li a{
+text-decoration: none;
+color: #755F48;
+}
+
+.nav [data-role="pagelink"].active-link{
+}
+
+
 /*************************************
         SVG Icons styling
 *************************************/
@@ -193,3 +206,7 @@ svg[data-icon-animate]{
 }
 
 
+[data-role="pagelink"].active-link svg[data-icon-name] *{
+  fill: #755F48;
+  stroke: none;
+}
