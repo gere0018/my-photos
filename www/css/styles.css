@@ -130,7 +130,18 @@ html[xmlns] .clearfix {
     text-align: center;
 }
 
+[data-role="gridView"]{
+  list-style:none;
+}
 
+[data-role="gridView"] li{
+  cursor:pointer;
+  width: 180px;
+}
+
+[data-role="gridView"] li img{
+  width: 100%;
+}
 
 
 
@@ -173,14 +184,6 @@ header{
   background-color: #F6F4F1;
   color: #755F48;
   padding: 1rem;
-}
-
-[data-role="gridView"]{
-  list-style:none;
-}
-[data-role="gridView"] li{
-  cursor:pointer;
-
 }
 
 /* ------------- Grid ------------- */

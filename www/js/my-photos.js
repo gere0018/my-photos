@@ -3,7 +3,172 @@ var appClass = function(){
     var pages = {};
     var links = {};
     var uuid = 0 ;
-    var customAajax;
+    var customAajax = {};
+
+    var serverConnection = function(id){
+        var deviceId = encodeURIComponent(id);
+        console.log("device id = "+ id);
+
+        var req;
+
+        var createAJAXObj = function () {
+            try {
+                console.log("chrome/ios ajax request");
+                return new XMLHttpRequest();
+            } catch (er1) {
+                try {
+                    return new ActiveXObject("Msxml3.XMLHTTP");
+                } catch (er2) {
+                    try {
+                        return new ActiveXObject("Msxml2.XMLHTTP.6.0");
+                    } catch (er3) {
+                        try {
+                            return new ActiveXObject("Msxml2.XMLHTTP.3.0");
+                        } catch (er4) {
+                            try {
+                                return new ActiveXObject("Msxml2.XMLHTTP");
+                            } catch (er5) {
+                                try {
+                                    return new ActiveXObject("Microsoft.XMLHTTP");
+                                } catch (er6) {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        var sendRequest = function (url, callback, postData) {
+            req = createAJAXObj(), method = (postData) ? "POST" : "GET";
+            if (!req) {
+                return;
+            }
+
+            /* Make sure to use asynchronous ajax call by setting last paramerter to true. */
+            req.open(method, url, true);
+            //req.setRequestHeader('User-Agent', 'XMLHTTP/1.0');
+            if (postData) {
+                req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            }
+            req.onreadystatechange = function () {
+                if (req.readyState !== 4) {
+                    return;
+                }
+                if (req.status !== 200 && req.status !== 304) {
+                    return;
+                }
+                callback(req);
+            }
+            req.send(postData);
+        }
+
+        var list = function(ipaddress){
+
+            /* http://faculty.edumedia.ca/griffis/mad9022/final-w15/*/
+            var url = "http://"+ipaddress+":8888/mad9022/final-w15/list.php?dev=" + deviceId;
+
+            sendRequest(url, photosGridview.create, null);
+
+        }
+
+        var save = function(){
+
+        }
+
+        var get = function(){
+
+        }
+
+        var remove = function(){
+
+        }
+
+        return {
+            list: list,
+            save: save,
+            get: get,
+            remove:remove
+        }
+    }
+
+// function imgReturned(xhr){
+//     var json = JSON.parse(xhr.responseText);
+//     alert(json.id);
+//     var img = document.createElement("img");
+//     img.src = json.data;
+//     var w = img.width;
+//     var h = img.height;
+
+//     //now load the image into the canvas
+//     var c = document.getElementById("c");
+//     var ctx = c.getContext("2d");
+//     c.width = w;
+//     c.height = h;
+//     c.style.width = w + "px";
+//     c.style.height = h + "px";
+
+//     ctx.drawImage(img, 0, 0);
+// }
+
+    var gridviewClass = function(){
+
+        var handleDelete = function(ev){
+            console.log(ev.target);
+            var itemToDelete = ev.target;
+            // itemToDelete.parentElement.remove();
+        }
+
+        var create = function(xhr){
+            var json = JSON.parse(xhr.responseText);
+            console.log(json);
+
+            var gridview = document.querySelector('[data-role= "gridView"]');
+            var gridviewContent = "";
+
+            /*      <li data-ref="4" class="col-4">
+                       <p> text - 4</p>
+                        <img src="http://www.entropiaplanets.com/w/images/thumb/e/eb/Moblist_thumb_Warlock.png/180px-Moblist_thumb_Warlock.png">
+                        <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
+                    </li>
+            */
+            for (var i=0; i< json["thumbnails"].length;i++){
+                gridviewContent += '<li data-ref="'+json["thumbnails"][i].id +'" class="col-4">';
+                gridviewContent += '<img src="'+json["thumbnails"][i].data+'"/>';
+                gridviewContent += '<svg data-icon-name="delete" viewBox="0 0 400 400"></svg></li>';
+            }
+
+            gridview.innerHTML = gridviewContent;
+            /* load delete buttons in the corresponding svg tags. */
+            /* add hammer listener for delete svg tags. */
+            // setTimeout(function(){
+                var deleteButtonsArray = document.querySelectorAll('svg[data-icon-name="delete"]');
+                console.log(deleteButtonsArray.length);
+                for(var i=0;i<deleteButtonsArray.length;i++){
+                    svgIcons.load(deleteButtonsArray[i], "data-icon-name");
+                    // var deleteBtnHammerManager = new Hammer(deleteButtonsArray[i]);
+                    // deleteBtnHammerManager.on("tap", handleDelete);
+                }
+            // }, 100);
+
+        }
+
+        var remove = function(){
+
+        }
+
+        var append = function(){
+
+        }
+
+        return{
+            create: create,
+            remove: remove,
+            append: append
+        }
+    }
+
 
     var siteNavigatorClass = function(){
 
@@ -60,12 +225,6 @@ var appClass = function(){
 
             }
             delete modalsArray; //Free the memory
-
-            var deleteButtonsArray = document.querySelectorAll('svg[data-icon-name="delete"]');
-            for(var i=0;i<deleteButtonsArray.length;i++){
-                var deleteBtnHammerManager = new Hammer(deleteButtonsArray[i]);
-                deleteBtnHammerManager.on("tap", handleDelete);
-            }
 
             doPageTransition(null, "viewPhotos");
 
@@ -140,12 +299,6 @@ var appClass = function(){
             removeModalWindow();
         }
 
-        var handleDelete = function(ev){
-            console.log(ev.target);
-            var itemToDelete = ev.target;
-            // itemToDelete.parentElement.remove();
-        }
-
         var handleSingleTapGridview = function(ev){
 
             var currentPageId = document.URL.split("#")[1];
@@ -153,28 +306,48 @@ var appClass = function(){
 
             /* Get which list item that has been tapped.*/
             var currentTarget = ev.target;
+
+            /*Get HTML type of the tapped element. */
+            var htmlType = currentTarget.nodeName;
+
             var gridItemId = currentTarget.getAttribute("data-ref");
-            while(!listItemId){
+            while(!gridItemId){
                 currentTarget = currentTarget.parentNode;
                 gridItemId = currentTarget.getAttribute("data-ref");
             }
-            var gridItemId = currentTarget;
 
-            /* Make sure that we find a valid list item */
-            if(gridItemId){
-
-                /* TODO: Delete image from database.*/
-
-                /* Delete item from grid view.*/
-
-                var outClass = "pt-page-scaleDown";
-                var inClass = "pt-page-scaleUp";
-
-                // doPageTransition(currentPageId,destPageId,outClass,inClass,true);
-
-            }else{
-                console.error("Failed to find valid grid item id");
+            // var gridItemId = currentTarget;
+            switch(htmlType){
+                case "LI":
+                    /* This matches tapping on margin between two list items, so
+                       Do nothing, user must clicked on img or delete svg icon.*/
+                    console.log("li is tapped");
+                    break;
+                case "IMG":
+                    /* TODO: open detailed view modal.*/
+                    /* TODO: get the bigger image from database.*/
+                    console.log("image tag is tapped, enlarge the image");
+                    break;
+                default: // for any part of the svg icon.
+                    console.log("svg or part of it is tapped, delete item");
+                    break;
             }
+
+            // /* Make sure that we find a valid list item */
+            // if(gridItemId){
+
+            //     /* TODO: Delete image from database.*/
+
+            //     /* Delete item from grid view.*/
+
+            //     var outClass = "pt-page-scaleDown";
+            //     var inClass = "pt-page-scaleUp";
+
+            //     // doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+
+            // }else{
+            //     console.error("Failed to find valid grid item id");
+            // }
         }
 
         //Deal with history API and switching divs
@@ -284,7 +457,11 @@ var appClass = function(){
         uuid = device.uuid;
         console.log(uuid);
 
-        customAajax = new serverConnection(uuid);
+        customAajax = new serverConnection(234234);
+
+        /* load all thumbnail images from server using ajax*/
+        customAajax.list("10.70.184.237");
+
         /* TODO: add camera preparation code. */
     }
 
@@ -299,6 +476,12 @@ var appClass = function(){
             /* Do nothing. */
         } else {
             console.debug("Running application from desktop browser");
+
+            customAajax = new serverConnection(234234);
+
+            /* load all thumbnail images from server using ajax*/
+            customAajax.list("localhost");
+
         }
 
         //add button and navigation listeners
