@@ -11,12 +11,12 @@
 body {
   font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
   font-size: 1.2rem;
-  background-image: url("../img/ivory-cream-colored-leather-texture.jpg");
+  background-image: url("../img/ivory-cream-colored-leather-texture%20copy.jpg");
   min-height: 100%;
-	background-size: cover;
-	background-attachment: fixed;
-	background-repeat: no-repeat;
-	background-position: center center;
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
 .wrapper{
@@ -110,6 +110,19 @@ html[xmlns] .clearfix {
   background-color:#D6789E;
   box-shadow:1px 1px 2px rgb(0,0,0);
 }
+/*************************************
+        view Photos page details
+*************************************/
+#viewPhotos p{
+    text-align: center;
+}
+
+
+
+
+
+
+
 
 /* ------------ Header ------------ */
 /* -------------------------------- */

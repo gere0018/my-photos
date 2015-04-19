@@ -5,25 +5,55 @@
   padding:0;
   margin:0;
   box-sizing:border-box;
+
 }
+
 body {
-    font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
-    font-size: 1.2rem;
-}
-html {
-  box-sizing: border-box;
-}
-
-*, *:before, *:after {
-  box-sizing: inherit;
-  padding: 0;
-  margin: 0;
+  font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+  font-size: 1.2rem;
+  background-image: url("../img/ivory-cream-colored-leather-texture%20copy.jpg");
+  min-height: 100%;
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
+.wrapper{
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.vertical-center{
+    position: relative;
+    top: 50%;
+    -webkit-transform:translateY(-50%);
+    transform: translateY(-50%);
+}
+
+/*************************************
+        ClearFix
+*************************************/
 .clearfix:after {
-  content: "";
-  display: table;
-  clear: both;
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+
+.clearfix {
+    display: block;
+}
+
+html[xmlns] .clearfix {
+    display: block;
+}
+
+* html .clearfix {
+    height: 1%;
 }
 
 /*************************************
@@ -32,26 +62,24 @@ html {
 [data-role=page]{
   position:absolute;
   z-index:5;
-  top:0;
+  top:2rem;
   left:0;
   width:100%;
   display:none;
   min-height:100%;
-  color:#FFFFFF;
-  background-color:#FF66A4;
+  color: #755F48;
+/*    background-image: url("paper.gif");*/
   padding:1rem;
   overflow: hidden;
 	-webkit-backface-visibility: hidden;
-	-moz-backface-visibility: hidden;
 	backface-visibility: hidden;
 	-webkit-transform: translate3d(0, 0, 0);
-	-moz-transform: translate3d(0, 0, 0);
 	transform: translate3d(0, 0, 0);
 	-webkit-transform-style: preserve-3d;
-	-moz-transform-style: preserve-3d;
 	transform-style: preserve-3d;
 }
-[data-role="page"].activePage {
+
+[data-role="page"].active-page {
            display:block;
             z-index:10;
 }
@@ -66,6 +94,7 @@ html {
   width:100%;
   background-color: rgba(0,0,0,0.82);
 }
+
 [data-role=modal]{
   display:none;
   position:fixed;
@@ -81,19 +110,40 @@ html {
   background-color:#D6789E;
   box-shadow:1px 1px 2px rgb(0,0,0);
 }
+/*************************************
+        view Photos page details
+*************************************/
+#viewPhotos p{
+    text-align: center;
+}
+
+
+
+
+
+
+
 
 /* ------------ Header ------------ */
 /* -------------------------------- */
+/*#C8B6A3  #FBF9F8  #F6F4F1 #A98D71 #664D34*/
 header{
   text-align: center;
-    margin-top: 2rem;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left:0;
+/*  margin-top: 1.75rem;*/
+  z-index: 15;
+  background-color: #F6F4F1;
+  color: #755F48;
+  padding: 1rem;
 }
 
-[data-role=gridView]{
+[data-role="gridView"]{
   list-style:none;
 }
-[data-role=gridView] li{
-  color:#FF4591;
+[data-role="gridView"] li{
   cursor:pointer;
 
 }
@@ -101,20 +151,75 @@ header{
 /* ------------- Grid ------------- */
 /* -------------------------------- */
 
-  .col-container {
-    margin: 3rem 0;
-  }
+.col-container {
+margin: 3rem 0;
+}
 /* -- Col-4 -- */
 
-  .col-4 {
+.col-4 {
+float: left;
+/* -- 19 + 19 + 19 + 19 = 82 -- */
+width: 19%;
+/* -- 6 + 6 + 6 +6 = 24 --*/
+margin: 0 3%;
+}
+
+
+.col-4 svg{
+    margin-left: 36%;
+}
+
+/************** Col - 2 *************/
+footer .col-container{
+  margin: 0 auto;
+  width: 11%;
+}
+
+.col-2{
     float: left;
-    /* -- 20.5 + 20.5 + 20.5 + 20.5 = 82 -- */
-    width: 20.5%;
-    /* -- 6 + 6 + 6 = 18 --*/
-    margin: 0 0 0 6%;
-  }
+    height: 4rem;
+    padding-left: 10px;
+}
 
-  .col-4:first-child {
-    margin-left: 0;
-  }
 
+/*************************************
+        Footer
+*************************************/
+footer {
+    color: #755F48;
+    background-color: #F6F4F1;
+    position: fixed;
+    bottom: 0;
+    height: 60px; /* same height as header. */
+    width: 100%;
+    z-index: 10;
+    font-size: 0.75rem;
+}
+
+.nav ul{
+    list-style: none;
+}
+
+.nav ul li a{
+text-decoration: none;
+color: #755F48;
+}
+
+.nav [data-role="pagelink"].active-link{
+}
+
+
+/*************************************
+        SVG Icons styling
+*************************************/
+svg[data-icon-name],
+svg[data-icon-animate]{
+    width: 32px;
+    height: 32px;
+}
+
+
+[data-role="pagelink"].active-link svg[data-icon-name] *{
+  fill: #755F48;
+  stroke: none;
+}

@@ -1,10 +1,12 @@
 var appClass = function(){
 
     var pages = {};
+    var links = {};
 
     var siteNavigatorClass = function(){
 
         var numPages = 0;
+        var numLinks = 0;
 
         var init = function(){
 
@@ -15,17 +17,29 @@ var appClass = function(){
             /* save pages into js object where the key is the same as the given page id*/
             for(var i=0; i< numPages; i++){
                 pages[pagesArray[i].getAttribute("id")] = pagesArray[i];
-
-                /* Each page contains a list view.
-                Add tap/double tap event listeners to the corresponding list view */
-                var listView = pagesArray[i].querySelector('ul[data-role="listview"]');
-
-                /* Relate tap and double tap events to list view of contacts using hammer API */
-                var listHammerManager = new Hammer(listView);
-
-                listHammerManager.on("tap", handleSingleTap);
             }
             delete pagesArray; //Free the memory
+
+
+            var listView = pages["viewPhotos"].querySelector('ul[data-role="gridView"]');
+
+            /* Relate tap and double tap events to list view of contacts using hammer API */
+            var listHammerManager = new Hammer(listView);
+
+            listHammerManager.on("tap", handleSingleTapGridview);
+
+            /* add listener for the main navigation tabs.*/
+            var linksArray = document.querySelectorAll('[data-role="pagelink"]');
+            numLinks = linksArray.length;
+            for(var i=0; i< linksArray.length; i++){
+                /* Get href attribute and remove hashtag (first character in string value) using
+            substr method.*/
+                var key = linksArray[i].getAttribute("href").substr(1);
+                links[key] = linksArray[i];
+                var tabHammerManager = new Hammer(linksArray[i]);
+                tabHammerManager.on('tap', handleSingleTapLink);
+            }
+            delete linksArray; //Free the memory
 
             /* Add modal to the pages array to be capable of applying page transitions for modal windows as well. */
             var modalsArray = document.querySelectorAll('[data-role="modal"]');
@@ -54,6 +68,28 @@ var appClass = function(){
             }
         }
 
+        var handleSingleTapLink = function(ev){
+            /* Get which link item that has been tapped.*/
+            var currentTarget = ev.target;
+            var linkHref = currentTarget.getAttribute("href");
+            while(!linkHref){
+                currentTarget = currentTarget.parentNode;
+                linkHref = currentTarget.getAttribute("href");
+            }
+            var destLink = currentTarget;
+
+            if(destLink){
+                var destPageId = linkHref.split("#")[1];
+                var currentPageId = document.URL.split("#")[1];
+
+                if(destPageId != currentPageId){
+                    var outClass = "pt-page-scaleDown";
+                    var inClass = "pt-page-scaleUp";
+
+                    doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+                }
+            }
+        }
 
         var handleCancelTap = function(ev){
 
@@ -72,11 +108,11 @@ var appClass = function(){
 
         var removeModalWindow = function(){
             var destPageId = document.URL.split("#")[1];
-            var activeModal = document.querySelector('[data-role="modal"].activePage');
+            var activeModal = document.querySelector('[data-role="modal"].active-page');
             var currentPageId = activeModal.getAttribute("id");
             pages[currentPageId].classList.add("pt-page-moveToBottom");
             setTimeout(function(){
-                pages[currentPageId].classList.remove("activePage");
+                pages[currentPageId].classList.remove("active-page");
                 pages[currentPageId].classList.remove("pt-page-moveToBottom");
             }, 600);
         }
@@ -97,7 +133,7 @@ var appClass = function(){
 
 
 
-        var handleSingleTap = function(ev){
+        var handleSingleTapGridview = function(ev){
 
             var currentPageId = document.URL.split("#")[1];
             console.log("Single tap event has been recognized inside page:"+currentPageId);
@@ -115,6 +151,7 @@ var appClass = function(){
             if(listItemId){
                 switch (currentPageId){
                     case "viewPhotos":
+                        /* TODO: trigger ajax to get bigger image size for the thumbnail. */
                         break;
                     case "takePhoto":
                         break;
@@ -139,11 +176,10 @@ var appClass = function(){
 
             if(srcPageId == null){
                 //home page first call, load all entries from people and occasion tables
-                pages[destPageId].classList.add("activePage");
+                pages[destPageId].classList.add("active-page");
                 pages[destPageId].classList.add("pt-page-fadeIn");
 
-                svgIcons.prepareAnimation(destPageId); //destPageId has the same svg name "people"
-                svgIcons.rotate(destPageId);
+                svgIcons.prepareAnimation(destPageId);
 
                 setTimeout(function(){svgIcons.startAnimation(destPageId);}, 20);
                 setTimeout(function(){
@@ -154,7 +190,10 @@ var appClass = function(){
 
             }else{
 
-                pages[destPageId].classList.add("activePage");
+                links[srcPageId].classList.remove("active-link");
+                links[destPageId].classList.add("active-link");
+
+                pages[destPageId].classList.add("active-page");
                 pages[srcPageId].className  += " "+outClass;
                 pages[destPageId].className += " "+inClass;
 
@@ -178,10 +217,10 @@ var appClass = function(){
                 var animationDelay = parseFloat(style.webkitAnimationDelay.slice(0,-1))* 1000;
 
                 setTimeout(function(){
-                    /* Remove activePage class and outClass from source page.
+                    /* Remove active-page class and outClass from source page.
                     Exception case: when displaying modal window, make sure to keep source page in the background*/
-                    pages[srcPageId].className = outClass?"":"activePage";
-                    pages[destPageId].className = "activePage";
+                    pages[srcPageId].className = outClass?"":"active-page";
+                    pages[destPageId].className = "active-page";
 
                     svgIcons.rotate(destPageId);
                     svgIcons.startAnimation(mainSvgIcon);
@@ -222,6 +261,8 @@ var appClass = function(){
                     init : init
         }
     };
+
+    console.log("Going to load svg images");
     var svgIcons = new svgClass();
     var siteNavigator = new siteNavigatorClass();
 
@@ -240,6 +281,7 @@ var appClass = function(){
 
         svgIcons.init();
 
+
         if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
             console.debug("Running application from device");
             /* Do nothing. */
@@ -249,7 +291,12 @@ var appClass = function(){
 
         //add button and navigation listeners
         siteNavigator.init();
+        prepareDelete();
 
+    }
+
+    return {
+        init: init
     }
 };
 

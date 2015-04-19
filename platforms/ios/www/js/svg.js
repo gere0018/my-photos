@@ -193,17 +193,17 @@ var svgClass = function(){
         }
 
         var rotate = function(pageId){
-            var addBtn  = pages[pageId].querySelector('svg[data-icon-name="add"]');
-            var backBtn = pages[pageId].querySelector('svg[data-icon-name="back"]');
-            if(addBtn){
-                addBtn.classList.add("rotate");
-                setTimeout(function(){addBtn.classList.remove("rotate");}, 600);
-            }
-
-            if(backBtn){
-                backBtn.classList.add("rotate");
-                setTimeout(function(){backBtn.classList.remove("rotate");}, 600);
-            }
+//            var addBtn  = pages[pageId].querySelector('svg[data-icon-name="add"]');
+//            var backBtn = pages[pageId].querySelector('svg[data-icon-name="back"]');
+//            if(addBtn){
+//                addBtn.classList.add("rotate");
+//                setTimeout(function(){addBtn.classList.remove("rotate");}, 600);
+//            }
+//
+//            if(backBtn){
+//                backBtn.classList.add("rotate");
+//                setTimeout(function(){backBtn.classList.remove("rotate");}, 600);
+//            }
         }
 
         return{
