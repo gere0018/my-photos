@@ -86,9 +86,38 @@
 <!-- ************************** Wael  Take Photo section ***************************  -->
 
 
-            <div data-role= "page" id="takePhoto" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
+            <div data-role="page" id="takePhoto">
+                <div class="col-container clearfix">
+                    <div class="col-2">
+                        <canvas id="photo-canvas"></canvas>
+                    </div>
+                    <div class="col-2">
+                        <form>
+                            <div class="formBox">
+                                <input type="text" value="" id="pic-text" placeholder="Enter text to image"/>
+                            </div>
+                            <div class="formBox">
+                                <fieldset class="radiogroup">
+                                    <legend>Select text placement </legend>
+                                    <div class="radio-button">
+                                        <input type="radio" name="radio-group" value="top-placement" id="top-placement" checked>
+                                        <label for="top-placement">Top Placement</label>
+                                    </div>
+                                    <div class="radio-button">
+                                        <input type="radio" name="radio-group" value="bottom-placement" id="bottom-placement">
+                                        <label for="">Botttom Placement</label>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="formBox">
+                                <input type="button" class="btn" value="Set Text" />
+                            </div>
+                            <div class="formBox">
+                                <input type="button" class="btn" value="SAVE" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
 
 <!-- ************************** Sticky footer section ***************************  -->

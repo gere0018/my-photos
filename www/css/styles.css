@@ -131,8 +131,23 @@ html[xmlns] .clearfix {
 
 
 
+/*************************************
+        takePhoto page details
+*************************************/
+#photo-canvas{
+  width: 90%;
+  height: 100%;
+  border: 1px dashed #755F48;
+}
 
-
+#takePhoto .col-2{
+  float: left;
+  width: 75%;
+  height: 100%;
+}
+#takePhoto .col-2:last-child{
+  width: 25%;
+}
 
 /* ------------ Header ------------ */
 /* -------------------------------- */
@@ -218,6 +233,62 @@ color: #755F48;
 .nav [data-role="pagelink"].active-link{
 }
 
+/*************************************
+        Form styling
+*************************************/
+.formBox{
+  padding: 0.6rem 0;
+}
+
+input[type="button"]{
+  /* Stop Safari Mobile from adding rounded corners to input buttons by default.*/
+  -webkit-appearance: none;
+  -webkit-border-radius: 0;
+}
+
+input[type="button"],
+input[type="text"]{
+  border: 0;
+  line-height: 1.6rem;
+  font-size: 1.2rem;
+  padding:0 1rem;
+  width:100%;
+  color: #755F48;
+}
+input[type="text"]:focus,
+input[type="text"]:active{
+  outline: 2px solid #755F48;
+}
+
+.btn{
+    width: 100%;
+    height: 2.5rem;
+    outline: 1px solid #755F48;
+    background-color: #F6F4F1;
+}
+
+.btn:hover,
+.btn:focus,
+.btn:active{
+    color: #F6F4F1;
+    background-color: #755F48;
+
+}
+
+.radio-button{
+  display: block;
+}
+
+fieldset.radiogroup  {
+  padding: 3%
+}
+
+fieldset.radiogroup legend {
+  margin: 0;
+  padding: 0;
+  font-weight: bold;
+  margin-left: 20px;
+}
 
 /*************************************
         SVG Icons styling
