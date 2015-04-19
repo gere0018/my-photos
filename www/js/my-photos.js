@@ -69,6 +69,7 @@ var appClass = function(){
         }
 
         var handleSingleTapLink = function(ev){
+            ev.preventDefault();
             /* Get which link item that has been tapped.*/
             var currentTarget = ev.target;
             var linkHref = currentTarget.getAttribute("href");
