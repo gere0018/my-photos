@@ -5,6 +5,7 @@
   padding:0;
   margin:0;
   box-sizing:border-box;
+
 }
 
 body {
@@ -62,7 +63,7 @@ html[xmlns] .clearfix {
   width:100%;
   display:none;
   min-height:100%;
-  color:#FFFFFF;
+  color: #755F48;
 /*    background-image: url("paper.gif");*/
   padding:1rem;
   overflow: hidden;
@@ -145,11 +146,11 @@ width: 20.5%;
 margin: 0 0 0 6%;
 }
 
-.col-4:first-child {
+.col-4:nth-child(4n+1) {
 margin-left: 0;
 }
 .col-4 svg{
-    margin-left: 40%;
+    margin-left: 36%;
 }
 
 /************** Col - 2 *************/

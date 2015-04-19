@@ -15,17 +15,16 @@ var appClass = function(){
             /* save pages into js object where the key is the same as the given page id*/
             for(var i=0; i< numPages; i++){
                 pages[pagesArray[i].getAttribute("id")] = pagesArray[i];
-
-                /* Each page contains a list view.
-                Add tap/double tap event listeners to the corresponding list view */
-                var listView = pagesArray[i].querySelector('ul[data-role="gridView"]');
-
-                /* Relate tap and double tap events to list view of contacts using hammer API */
-                var listHammerManager = new Hammer(listView);
-
-                listHammerManager.on("tap", handleSingleTap);
             }
             delete pagesArray; //Free the memory
+
+
+            var listView = pages["viewPhotos"].querySelector('ul[data-role="gridView"]');
+
+            /* Relate tap and double tap events to list view of contacts using hammer API */
+            var listHammerManager = new Hammer(listView);
+
+            listHammerManager.on("tap", handleSingleTap);
 
             /* Add modal to the pages array to be capable of applying page transitions for modal windows as well. */
             var modalsArray = document.querySelectorAll('[data-role="modal"]');
@@ -242,6 +241,7 @@ var appClass = function(){
 
         svgIcons.init();
 
+
         if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
             console.debug("Running application from device");
             /* Do nothing. */
@@ -251,6 +251,7 @@ var appClass = function(){
 
         //add button and navigation listeners
         siteNavigator.init();
+        prepareDelete();
 
     }
 
