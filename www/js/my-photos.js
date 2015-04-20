@@ -248,7 +248,7 @@ var appClass = function(){
         }
         var save = function(){
             /* send image base64 encoded string as well as thumbial to server.*/
-            var fullImg  = "Full image string";//encodeURIComponent (canvas.toDataURL("image/jpeg"));
+            var fullImg  = encodeURIComponent (canvas.toDataURL("image/jpeg"));
             var thumbImg = encodeURIComponent (thumbCanvas.toDataURL("image/jpeg"));
             ajaxObject.save(fullImg,
                             thumbImg);
@@ -274,10 +274,6 @@ var appClass = function(){
             image.height = th;
             context.drawImage(image, 0, 0,180,th);
             console.log("Thumbnail image is drawn on canvas");
-
-
-
-
         }
 
         return{
