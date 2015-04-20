@@ -156,27 +156,21 @@ var appClass = function(){
         }
     }
     var cameraClass = function(){
+        //success function returns the base 64 string of the image
         var onSuccess = function (imageData) {
-             console.log('success func');
-            var img = document.querySelector("#newImage");
-            img.src = "data:image/jpeg;base64," + imageData;
-           // console.log(img.src);
-//            var w = "100";
-//	        var h = '110';
-            //now load the image into the canvas
-//            var canvas = document.querySelector("#photo-canvas");
-//            var context = canvas.getContext("2d");
-//            canvas.width = w;
-//            canvas.height = h;
-//            canvas.style.width = w + "px";
-//            canvas.style.height = h + "px";
-//
-//            context.drawImage(img, 0, 0);
-
-
-//
-//            var image = document.getElementById('myImage');
-//            image.src = "data:image/jpeg;base64," + imageData;
+            //Setting canvas width and height to the returned image width and height
+          var canvas = document.querySelector("#photo-canvas");
+            var context = canvas.getContext("2d");
+            var img = document.createElement("img");
+            img.onload = function(ev) {
+                var imgWidth = ev.currentTarget.width;
+                var imgHeight = ev.currentTarget.height;
+                canvas.width = imgWidth;
+                canvas.height = imgHeight;
+                context.drawImage(ev.currentTarget, 0, 0);
+            };
+           // setting image source to base 64 string
+           img.src = "data:image/jpeg;base64," + imageData;
         }
 
         var onFail = function(message) {
@@ -491,8 +485,7 @@ var appClass = function(){
         ajaxObject = new AjaxConnectionClass(234234);
 
         /* load all thumbnail images from server using ajax*/
-        ajaxObject.list("10.70.184.237:8888");
-
+        ajaxObject.list("10.70.219.173:8888");
         /* TODO: add camera preparation code. */
          pictureSource=navigator.camera.PictureSourceType;
          destinationType=navigator.camera.DestinationType;
