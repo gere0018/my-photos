@@ -4,6 +4,8 @@ var appClass = function(){
     var links = {};
     var uuid = 0 ;
     var ajaxObject = {};
+    var pictureSource;   // picture source
+    var destinationType; // sets the format of returned value
 
     var AjaxConnectionClass = function(id){
         var deviceId = encodeURIComponent(id);
@@ -103,8 +105,6 @@ var appClass = function(){
 
         var create = function(xhr){
             var json = JSON.parse(xhr.responseText);
-            console.log(json);
-
             var gridview = document.querySelector('[data-role= "gridView"]');
             var gridviewContent = "";
 
@@ -154,6 +154,44 @@ var appClass = function(){
             remove: remove,
             append: append
         }
+    }
+    var cameraClass = function(){
+        var onSuccess = function (imageData) {
+             console.log('success func');
+            var img = document.querySelector("#newImage");
+            img.src = "data:image/jpeg;base64," + imageData;
+           // console.log(img.src);
+//            var w = "100";
+//	        var h = '110';
+            //now load the image into the canvas
+//            var canvas = document.querySelector("#photo-canvas");
+//            var context = canvas.getContext("2d");
+//            canvas.width = w;
+//            canvas.height = h;
+//            canvas.style.width = w + "px";
+//            canvas.style.height = h + "px";
+//
+//            context.drawImage(img, 0, 0);
+
+
+//
+//            var image = document.getElementById('myImage');
+//            image.src = "data:image/jpeg;base64," + imageData;
+        }
+
+        var onFail = function(message) {
+            console.log('Failed because: ' + message);
+        }
+        var open = function(){
+            navigator.camera.getPicture(onSuccess, onFail, { quality: 50,
+            destinationType: Camera.DestinationType.DATA_URL
+            });
+            console.log('opened camera');
+        }
+        return{
+            open:open
+        }
+
     }
 
 
@@ -242,6 +280,10 @@ var appClass = function(){
                     var inClass = "pt-page-scaleUp";
 
                     doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+                }
+                if(destPageId == "takePhoto"){
+                    cameraObject.open();
+
                 }
             }
         }
@@ -434,6 +476,7 @@ var appClass = function(){
     var svgIcons = new svgClass();
     var siteNavigator = new siteNavigatorClass();
     var photosGridview = new gridviewClass();
+    var cameraObject = new cameraClass();
 
     var init = function(){
         document.addEventListener("deviceready", onDeviceReady, false);
@@ -451,6 +494,8 @@ var appClass = function(){
         ajaxObject.list("10.70.184.237:8888");
 
         /* TODO: add camera preparation code. */
+         pictureSource=navigator.camera.PictureSourceType;
+         destinationType=navigator.camera.DestinationType;
     }
 
     var onPageLoaded = function(){
