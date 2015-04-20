@@ -69,7 +69,7 @@ var appClass = function(){
             serverIPAddress = ipaddress;
 
             /* http://faculty.edumedia.ca/griffis/mad9022/final-w15/*/
-            var url = "http://"+serverIPAddress+"/mad9022/final-w15/list.php?dev=" + deviceId;
+            var url = "http://"+serverIPAddress+"/mad9022/my-photos/server/list.php?dev=" + deviceId;
 
             sendRequest(url, photosGridview.create, null);
 
@@ -85,7 +85,7 @@ var appClass = function(){
 
         var remove = function(imgId,gridItem){
             /* http://localhost:8888/mad9022/final-w15/delete.php?dev=234234&img_id=1*/
-            var url = "http://"+serverIPAddress+"/mad9022/final-w15/delete.php?dev=" + deviceId;
+            var url = "http://"+serverIPAddress+"/mad9022/my-photos/server/delete.php?dev=" + deviceId;
                 url += "&img_id="+imgId;
             sendRequest(url, photosGridview.remove(gridItem), null);
 
