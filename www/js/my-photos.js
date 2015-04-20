@@ -3,10 +3,11 @@ var appClass = function(){
     var pages = {};
     var links = {};
     var uuid = 0 ;
-    var customAajax = {};
+    var ajaxObject = {};
 
-    var serverConnection = function(id){
+    var AjaxConnectionClass = function(id){
         var deviceId = encodeURIComponent(id);
+        var serverIPAddress = "";
         console.log("device id = "+ id);
 
         var req;
@@ -65,9 +66,10 @@ var appClass = function(){
         }
 
         var list = function(ipaddress){
+            serverIPAddress = ipaddress;
 
             /* http://faculty.edumedia.ca/griffis/mad9022/final-w15/*/
-            var url = "http://"+ipaddress+":8888/mad9022/final-w15/list.php?dev=" + deviceId;
+            var url = "http://"+serverIPAddress+"/mad9022/final-w15/list.php?dev=" + deviceId;
 
             sendRequest(url, photosGridview.create, null);
 
@@ -81,7 +83,11 @@ var appClass = function(){
 
         }
 
-        var remove = function(){
+        var remove = function(imgId,gridItem){
+            /* http://localhost:8888/mad9022/final-w15/delete.php?dev=234234&img_id=1*/
+            var url = "http://"+serverIPAddress+"/mad9022/final-w15/delete.php?dev=" + deviceId;
+                url += "&img_id="+imgId;
+            sendRequest(url, photosGridview.remove(gridItem), null);
 
         }
 
@@ -93,32 +99,7 @@ var appClass = function(){
         }
     }
 
-// function imgReturned(xhr){
-//     var json = JSON.parse(xhr.responseText);
-//     alert(json.id);
-//     var img = document.createElement("img");
-//     img.src = json.data;
-//     var w = img.width;
-//     var h = img.height;
-
-//     //now load the image into the canvas
-//     var c = document.getElementById("c");
-//     var ctx = c.getContext("2d");
-//     c.width = w;
-//     c.height = h;
-//     c.style.width = w + "px";
-//     c.style.height = h + "px";
-
-//     ctx.drawImage(img, 0, 0);
-// }
-
     var gridviewClass = function(){
-
-        var handleDelete = function(ev){
-            console.log(ev.target);
-            var itemToDelete = ev.target;
-            // itemToDelete.parentElement.remove();
-        }
 
         var create = function(xhr){
             var json = JSON.parse(xhr.responseText);
@@ -154,8 +135,14 @@ var appClass = function(){
 
         }
 
-        var remove = function(){
+        var remove = function(itemToDelete){
+            return function(xhr){
+                /* TODO: add animation while removing. */
 
+                /* remove item from grid view.*/
+                itemToDelete.remove();
+
+            }
         }
 
         var append = function(){
@@ -330,6 +317,7 @@ var appClass = function(){
                     break;
                 default: // for any part of the svg icon.
                     console.log("svg or part of it is tapped, delete item");
+                    ajaxObject.remove(gridItemId, currentTarget);
                     break;
             }
 
@@ -457,10 +445,10 @@ var appClass = function(){
         uuid = device.uuid;
         console.log(uuid);
 
-        customAajax = new serverConnection(234234);
+        ajaxObject = new AjaxConnectionClass(234234);
 
         /* load all thumbnail images from server using ajax*/
-        customAajax.list("10.70.184.237");
+        ajaxObject.list("10.70.184.237:8888");
 
         /* TODO: add camera preparation code. */
     }
@@ -477,10 +465,10 @@ var appClass = function(){
         } else {
             console.debug("Running application from desktop browser");
 
-            customAajax = new serverConnection(234234);
+            ajaxObject = new AjaxConnectionClass(234234);
 
             /* load all thumbnail images from server using ajax*/
-            customAajax.list("localhost");
+            ajaxObject.list("localhost:8888");
 
         }
 
