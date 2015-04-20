@@ -4,9 +4,9 @@
 Saves the base 64 encoded strings for the thumbnail and full sized image
 
 Requires
-$_REQUEST['dev'] - device unique id
-$_REQUEST['img'] - base64 encoded string representing the full size image
-$_REQUEST['thumb'] - base64 encoded string representing the thumbnail version of the image
+$_POST['dev'] - device unique id
+$_POST['img'] - base64 encoded string representing the full size image
+$_POST['thumb'] - base64 encoded string representing the thumbnail version of the image
 
 Returns JSON
 code should be zero if there is no error
@@ -20,12 +20,12 @@ if code is something else then there is an error and no id for the image
 require_once("db.inc.php");
 header("Content-Type: application/json");
 
-if( isset( $_GET['dev'] ) && isset($_GET['img']) && isset($_GET['thumb']) ){
+if( isset( $_POST['dev'] ) && isset($_POST['img']) && isset($_POST['thumb']) ){
     //we have the device id
     //save the thumbnail and image in the database
-    $dev_id = trim($_GET['dev']);
-    $full_img = trim($_GET['img']);
-    $thumb = trim($_GET['thumb']);
+    $dev_id = trim($_POST['dev']);
+    $full_img = trim($_POST['img']);
+    $thumb = trim($_POST['thumb']);
 
     $sql = "INSERT INTO w15_final(device_id, thumbnail, full_img) VALUES(?, ?, ?)";
     $rs = $pdo->prepare($sql);

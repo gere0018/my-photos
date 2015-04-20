@@ -8,7 +8,7 @@ var appClass = function(){
     var destinationType; // sets the format of returned value
 
     var AjaxConnectionClass = function(id){
-        var deviceId = encodeURIComponent(id);
+        var deviceId = id;
         var serverIPAddress = "";
         console.log("device id = "+ id);
 
@@ -77,8 +77,15 @@ var appClass = function(){
 
         }
 
-        var save = function(){
-
+        var save = function(fullImg,thumbImg){
+            /*
+            var url = "http://faculty.edumedia.ca/griffis/mad9022/final-w15/save.php";
+	var postData = "dev=234234&thumb=" + thumbpng + "&img=" + fullpng;
+	sendRequest(url, imgSaved, postData);
+            */
+            var url = "http://"+serverIPAddress+"/mad9022/my-photos/server/save.php";
+            var postData = "dev=" + deviceId +"&thumb=" + thumbImg  + "&img=" + fullImg;
+	        sendRequest(url, onSave, postData);
         }
 
         var get = function(){
@@ -93,6 +100,11 @@ var appClass = function(){
 
         }
 
+        var onSave = function (xhr){
+            var json = JSON.parse(xhr.responseText);
+            console.log("Save status code is "+ json.message );
+        }
+
         return {
             list: list,
             save: save,
@@ -105,6 +117,7 @@ var appClass = function(){
 
         var create = function(xhr){
             var json = JSON.parse(xhr.responseText);
+            console.log(json.message);
             var gridview = document.querySelector('[data-role= "gridView"]');
             var gridviewContent = "";
 
@@ -155,6 +168,7 @@ var appClass = function(){
             append: append
         }
     }
+
     var cameraClass = function(){
         //success function returns the base 64 string of the image
         var onSuccess = function (imageData) {
@@ -168,9 +182,13 @@ var appClass = function(){
                 canvas.width = imgWidth;
                 canvas.height = imgHeight;
                 context.drawImage(ev.currentTarget, 0, 0);
+                imageObject.setThumbnail();
             };
-           // setting image source to base 64 string
-           img.src = "data:image/jpeg;base64," + imageData;
+            // setting image source to base 64 string
+            img.src = "data:image/jpeg;base64," + imageData;
+            imageObject.setImage(img, canvas);
+
+
         }
 
         var onFail = function(message) {
@@ -188,6 +206,88 @@ var appClass = function(){
 
     }
 
+    var imageClass = function(image, canvas){
+        var image;
+        var canvas;
+        var thumbCanvas;
+
+        var setText = function(ev){
+
+            ev.preventDefault();
+
+            console.log("set text is called");
+            var context = canvas.getContext("2d");
+            var inputText = document.getElementById("text");
+            var text = inputText.value;
+            if(text != ""){
+                /* reset input text. */
+                inputText.value = "";
+
+                /* reset focus of the 'SET TEXT' button. */
+                document.querySelector("#setText").className = "btn";
+
+                //clear the canvas
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                //reload the image
+                var w = image.width;
+                var h = image.height;
+                context.drawImage(image, 0, 0, w, h);
+                //THEN add the new text to the image
+                var middle = canvas.width / 2;
+                var bottom = canvas.height - 50;
+                context.font = "75px HelveticaNeue";
+                context.fillStyle = "#755F48";
+                context.strokeStyle = "#755F48";
+                context.textAlign = "center";
+                context.fillText(text, middle, bottom);
+                context.strokeText(text, middle, bottom);
+           }else{
+               /* TODO: Display warning message to the user about empty text*/
+           }
+
+        }
+        var save = function(){
+            /* send image base64 encoded string as well as thumbial to server.*/
+            var fullImg  = "Full image string";//encodeURIComponent (canvas.toDataURL("image/jpeg"));
+            var thumbImg = encodeURIComponent (thumbCanvas.toDataURL("image/jpeg"));
+            ajaxObject.save(fullImg,
+                            thumbImg);
+        }
+
+        var setImage = function(img, imgCanvas){
+            image = img;
+            canvas = imgCanvas;
+        }
+
+        var setThumbnail = function(){
+            console.log("inside setThumbnail function");
+            /* create temporary canvas to get thumbnail base64 encoded string.*/
+            thumbCanvas = document.createElement("canvas");
+//           thumbCanvas = document.querySelector("#thumb-canvas");
+            var context = thumbCanvas.getContext("2d");
+            var aspectRatio = image.width / image.height;
+            thumbCanvas.width = 180;
+            var th = 180 / aspectRatio;
+            thumbCanvas.height = th;
+
+            image.width = 180;
+            image.height = th;
+            context.drawImage(image, 0, 0,180,th);
+            console.log("Thumbnail image is drawn on canvas");
+
+
+
+
+        }
+
+        return{
+            setText:setText,
+            save:save,
+            setImage:setImage,
+            setThumbnail: setThumbnail
+        }
+
+   }
 
     var siteNavigatorClass = function(){
 
@@ -252,6 +352,16 @@ var appClass = function(){
                 var backBtnHammerManager = new Hammer(backBtnsArray[i]);
                 backBtnHammerManager.on('tap', handleBackButton);
             }
+
+            //add listeners to set text and save buttons in take photo page
+            var setTextBtn = document.querySelector("#setText");
+            var saveBtn = document.querySelector("#save");
+            var hammerSetText = new Hammer(setTextBtn);
+            hammerSetText.on('tap', imageObject.setText);
+
+            var hammerSave = new Hammer(saveBtn);
+            hammerSave.on('tap', imageObject.save);
+
         }
 
         var handleSingleTapLink = function(ev){
@@ -275,10 +385,16 @@ var appClass = function(){
 
                     doPageTransition(currentPageId,destPageId,outClass,inClass,true);
                 }
-                if(destPageId == "takePhoto"){
-                    cameraObject.open();
 
+                switch(destPageId){
+                    case "takePhoto":
+                        cameraObject.open();
+                        break;
+                    case "viewPhotos":
+                        ajaxObject.list("10.70.219.173:8888");
+                        break;
                 }
+
             }
         }
 
@@ -471,7 +587,7 @@ var appClass = function(){
     var siteNavigator = new siteNavigatorClass();
     var photosGridview = new gridviewClass();
     var cameraObject = new cameraClass();
-
+    var imageObject = new imageClass();
     var init = function(){
         document.addEventListener("deviceready", onDeviceReady, false);
         document.addEventListener("DOMContentLoaded", onPageLoaded, false);
@@ -482,7 +598,7 @@ var appClass = function(){
         uuid = device.uuid;
         console.log(uuid);
 
-        ajaxObject = new AjaxConnectionClass(234234);
+        ajaxObject = new AjaxConnectionClass(uuid); //234234
 
         /* load all thumbnail images from server using ajax*/
         ajaxObject.list("10.70.219.173:8888");
