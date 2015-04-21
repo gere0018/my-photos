@@ -333,7 +333,6 @@ var appClass = function(){
                     var inClass = "pt-page-moveFromBottom";
 
                     siteNavigator.doPageTransition(currentPageId, destPageId, outClass, inClass);
-
             }
         }
 
