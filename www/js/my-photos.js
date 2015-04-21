@@ -79,14 +79,9 @@ var appClass = function(){
         }
 
         var save = function(fullImg,thumbImg){
-            /*
-            var url = "http://faculty.edumedia.ca/griffis/mad9022/final-w15/save.php";
-	var postData = "dev=234234&thumb=" + thumbpng + "&img=" + fullpng;
-	sendRequest(url, imgSaved, postData);
-            */
             var url = "http://m.edumedia.ca/gere0018/mad9022/final/save.php";
             var postData = "dev=" + deviceId +"&thumb=" + thumbImg  + "&img=" + fullImg;
-            console.log(postData);
+            //console.log(postData);
 	        sendRequest(url, onSave, postData);
         }
 
@@ -206,7 +201,13 @@ var appClass = function(){
 
         var onFail = function(message) {
             console.log('Failed because: ' + message);
+            var canvas = document.querySelector("#photo-canvas");
+            var context = canvas.getContext("2d");
+            context.clearRect(0, 0, canvas.width, canvas.height);
+//            console.log(canvas.toDataURL());
+
         }
+
         var open = function(){
             navigator.camera.getPicture(onSuccess, onFail, { quality: 50,
             destinationType: Camera.DestinationType.DATA_URL
@@ -241,17 +242,19 @@ var appClass = function(){
         var image;
         var canvas;
         var thumbCanvas;
+        var emptyImageBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYAAABkW7XSAAAAAXNSR0IArs4c6QAAAylJREFUeAHt0DEBAAAAwqD1T20IX4hAYcCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYOAdGL/UAAEPpnR6AAAAAElFTkSuQmCC";
 
         var setText = function(ev){
             //prevent page reload
             ev.preventDefault();
             console.log("set text is called");
             //if(canvas){
-            if(canvas && (canvas.toDataURL() != document.createElement('canvas').toDataURL())){
+            if(!isCanvasEmpty()){
                 var context = canvas.getContext("2d");
                 var inputText = document.getElementById("text");
                 var text = inputText.value;
                 var bottomSelect = document.querySelector("#bottomSelect");
+                var darkColor = document.querySelector("#dark");
                 if(text != ""){
                     /* reset input text. */
                     inputText.value = "";
@@ -261,18 +264,21 @@ var appClass = function(){
 
                     //clear the canvas
                     context.clearRect(0, 0, canvas.width, canvas.height);
-                    //reload the image
-    //                var w = image.width;
-    //                var h = image.height;
                     context.drawImage(image, 0, 0,canvas.width, canvas.height);
                     //THEN add the new text to the image
                     var middle = canvas.width / 2;
-                    var bottom = canvas.height - 50;
-                    var top = canvas.height - 400
-                    context.font = "30px HelveticaNeue";
-                    context.fillStyle = "#755F48";
-                    context.strokeStyle = "#755F48";
+                    var bottom = canvas.height - 100;
+                    var top = 100;
+                    context.font = "70px HelveticaNeue";
                     context.textAlign = "center";
+                    if(darkColor.checked == true){
+                        context.fillStyle = "#755F48";
+                        context.strokeStyle = "#755F48";
+                    }else{
+                        context.fillStyle = "#F6F4F1";
+                        context.strokeStyle = "#F6F4F1";
+                    }
+
                     if(bottomSelect.checked == true){
                         context.fillText(text, middle, bottom);
                         context.strokeText(text, middle, bottom);
@@ -310,14 +316,24 @@ var appClass = function(){
         }
         var save = function(ev){
             ev.preventDefault();
-            console.log("image.save ");
-            /* send image base64 encoded string as well as thumbial to server.*/
-            var fullImg  = encodeURIComponent (canvas.toDataURL("image/jpeg"));
-            console.log("getting full image");
-            var thumbImg = encodeURIComponent (thumbCanvas.toDataURL("image/jpeg"));
-            console.log("getting thumbnail");
-            ajaxObject.save(fullImg,
-                            thumbImg);
+            console.log("save button is tapped");
+            /*Check if canvas is not empty*/
+            if(!isCanvasEmpty()){
+                /* send image base64 encoded string as well as thumbial to server.*/
+                var fullImg  = encodeURIComponent (canvas.toDataURL("image/jpeg"));
+                var thumbImg = encodeURIComponent (thumbCanvas.toDataURL("image/jpeg"));
+                ajaxObject.save(fullImg,
+                                thumbImg);
+            }else{
+                    //if there is no image on the canvas
+                    var currentPageId = "takePhoto";
+                    var destPageId = "modal-empty-canvas";
+                    var outClass = "";
+                    var inClass = "pt-page-moveFromBottom";
+
+                    siteNavigator.doPageTransition(currentPageId, destPageId, outClass, inClass);
+
+            }
         }
 
         var setImage = function(img, imgCanvas){
@@ -347,6 +363,10 @@ var appClass = function(){
             console.log(json.message);
             var img = document.querySelector('#full-image');
             img.src = json.data;
+        }
+
+        var isCanvasEmpty = function(){
+            return !(canvas && canvas.toDataURL() == emptyImageBase64);
         }
 
         return{
