@@ -47,20 +47,46 @@
                                 </fieldset>
                             </div>
                             <div class="formBox">
-                                <input type="button" class="btn" id = "setText" value="Set Text" />
+                                <input type="submit" class="btn" id = "setText" value="Set Text" />
                             </div>
                             <div class="formBox">
-                                <input type="button" class="btn" id = "save" value="SAVE" />
+                                <input type="submit" class="btn" id = "save" value="SAVE" />
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
-   <section data-role="modal" id="moadl-full-image">
+
+    <section data-role="modal" id="moadl-full-image">
         <svg data-icon-name="back" viewBox="0 0 400 400"></svg>
         <div data-role="overlay">&nbsp;</div>
         <div data-role="modal-details">
-        <img id="full-image"/>
+            <img id="full-image"/>
+        </div>
+    </section>
+
+   <section data-role="modal" id="modal-delete-confirm">
+       <div data-role="overlay">&nbsp;</div>
+        <div data-role="modal-details" >
+            <p>Are you sure you want to delete this photo?</p>
+            <form>
+                <div class="formBox">
+                    <input type="submit" class="btn" value="CANCEL" />
+                    <input type="submit" class="btn" value="OK" />
+                </div>
+            </form>/
+        </div>
+    </section>
+
+   <section data-role="modal" id="modal-save-confirm">
+       <div data-role="overlay">&nbsp;</div>
+        <div data-role="modal-details" >
+            <p>Your image is saved to MyPhotos</p>
+            <form>
+                <div class="formBox">
+                    <input type="submit" class="btn" value="OK" />
+                </div>
+            </form>
         </div>
     </section>
 

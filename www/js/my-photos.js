@@ -95,7 +95,8 @@ var appClass = function(){
 
         }
 
-        var remove = function(imgId,gridItem){
+        var remove = function(gridItem){
+            var imgId = gridItem.getAttribute("data-ref");
             /* http://localhost:8888/mad9022/final-w15/delete.php?dev=234234&img_id=1*/
             var url = "http://"+serverIPAddress+"/mad9022/my-photos/server/delete.php?dev=" + deviceId;
                 url += "&img_id="+imgId;
@@ -106,6 +107,15 @@ var appClass = function(){
         var onSave = function (xhr){
             var json = JSON.parse(xhr.responseText);
             console.log("Save status code is "+ json.message );
+
+            /* Open modal window for saving new image to database. */
+            var currentPageId = "takePhoto";
+            var destPageId = "modal-save-confirm";
+            var outClass = "";
+            var inClass = "pt-page-moveFromBottom";
+
+            siteNavigator.doPageTransition(currentPageId, destPageId, outClass, inClass);
+
         }
 
         return {
@@ -138,25 +148,27 @@ var appClass = function(){
 
             gridview.innerHTML = gridviewContent;
             /* load delete buttons in the corresponding svg tags. */
-            /* add hammer listener for delete svg tags. */
-            // setTimeout(function(){
                 var deleteButtonsArray = document.querySelectorAll('svg[data-icon-name="delete"]');
                 console.log(deleteButtonsArray.length);
                 for(var i=0;i<deleteButtonsArray.length;i++){
                     svgIcons.load(deleteButtonsArray[i], "data-icon-name");
-                    // var deleteBtnHammerManager = new Hammer(deleteButtonsArray[i]);
-                    // deleteBtnHammerManager.on("tap", handleDelete);
+
                 }
-            // }, 100);
+
 
         }
 
         var remove = function(itemToDelete){
             return function(xhr){
+                /* dismiss modal window. */
+                siteNavigator.removeModalWindow();
+
                 /* TODO: add animation while removing. */
 
-                /* remove item from grid view.*/
-                itemToDelete.remove();
+                /* remove item from grid view after waiting for ending of window removal animation*/
+                setTimeout(function(){
+                    itemToDelete.remove();
+                }, 600);
 
             }
         }
@@ -249,7 +261,9 @@ var appClass = function(){
            }
 
         }
-        var save = function(){
+        var save = function(ev){
+            ev.preventDefault();
+
             /* send image base64 encoded string as well as thumbial to server.*/
             var fullImg  = encodeURIComponent (canvas.toDataURL("image/jpeg"));
             var thumbImg = encodeURIComponent (thumbCanvas.toDataURL("image/jpeg"));
@@ -300,6 +314,7 @@ var appClass = function(){
 
         var numPages = 0;
         var numLinks = 0;
+        var gridItemToBeDeleted;
 
         var init = function(){
 
@@ -334,9 +349,26 @@ var appClass = function(){
             }
             delete linksArray; //Free the memory
 
-            /* Add modal to the pages array to be capable of applying page transitions for modal windows as well. */
-            var modal = document.querySelector('[data-role="modal"]');
-            pages[modal.getAttribute("id")] = modal;
+/* Add modal to the pages array to be capable of applying page transitions for modal windows as well. */
+			var modalsArray = document.querySelectorAll('[data-role="modal"]');
+			var numModals = modalsArray.length;
+			for(var i=0; i< numModals; i++){
+				pages[modalsArray[i].getAttribute("id")] = modalsArray[i];
+			}
+			delete modalsArray; //Free the memory
+
+            /* Add listeners for buttons inside the modal window. */
+            var cancelBtn = pages["modal-delete-confirm"].querySelector('input[value="CANCEL"]');
+            var cancelBtnHammerManager = new Hammer(cancelBtn);
+            cancelBtnHammerManager.on('tap', handleCancelTap);
+
+            var okDeleteBtn = pages["modal-delete-confirm"].querySelector('input[value="OK"]');
+            var okDeleteBtnHammerManager = new Hammer(okDeleteBtn);
+            okDeleteBtnHammerManager.on('tap', handleDeleteConfirm);
+
+            var okBtn = pages["modal-save-confirm"].querySelector('input[value="OK"]');
+            var okBtnManager = new Hammer(okBtn);
+            okBtnManager.on('tap', handleOkTap);
 
 
             doPageTransition(null, "viewPhotos");
@@ -355,6 +387,11 @@ var appClass = function(){
             var hammerSave = new Hammer(saveBtn);
             hammerSave.on('tap', imageObject.save);
 
+        }
+
+        var handleDeleteConfirm = function(ev){
+            ev.preventDefault();
+            ajaxObject.remove(gridItemToBeDeleted);
         }
 
         var handleSingleTapLink = function(ev){
@@ -392,17 +429,7 @@ var appClass = function(){
         }
 
         var handleCancelTap = function(ev){
-
-            var currentPageId = document.URL.split("#")[1];
-            switch(currentPageId){
-                case "viewPhotos":
-                    break;
-                case "takePhoto":
-                    break;
-                default:
-                    /*Do nothing*/
-            }
-
+            ev.preventDefault();
             removeModalWindow();
         }
 
@@ -417,17 +444,10 @@ var appClass = function(){
             }, 600);
         }
 
-        var handleSaveTap = function(ev){
+        var handleOkTap = function(ev){
             /* prevent page from reloading*/
             ev.preventDefault();
 
-            var currentPageId = document.URL.split("#")[1];
-            switch(currentPageId){
-                case "takePhoto":
-
-                default:
-                    /* Do nothing*/
-            }
             removeModalWindow();
         }
 
@@ -469,8 +489,17 @@ var appClass = function(){
 
                     break;
                 default: // for any part of the svg icon.
-                    console.log("svg or part of it is tapped, delete item");
-                    ajaxObject.remove(gridItemId, currentTarget);
+                    console.log("svg or part of it, is tapped, delete item");
+                    gridItemToBeDeleted = currentTarget;
+
+                    /* Open modal window for confirmation delete*/
+                    var destPageId = "modal-delete-confirm";
+                    var outClass = "";
+                    var inClass = "pt-page-moveFromBottom";
+
+                    doPageTransition(currentPageId, destPageId, outClass, inClass);
+
+
                     break;
             }
 
@@ -512,7 +541,8 @@ var appClass = function(){
 
             }else{
 
-                if("moadl-full-image" != destPageId){
+                /* If this is modal window, dont change the active link. */
+                if(-1 == destPageId.indexOf("modal-")){
                     links[srcPageId].classList.remove("active-link");
                     links[destPageId].classList.add("active-link");
                 }
@@ -569,7 +599,9 @@ var appClass = function(){
         }
 
         return {
-                    init : init
+                    init : init,
+                    removeModalWindow: removeModalWindow,
+                    doPageTransition: doPageTransition
         }
     };
 
