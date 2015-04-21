@@ -1,8 +1,8 @@
 <?php
 //db.inc.php
 $db_host = "localhost";
-$db_user = "root";
-$db_password = "root";
+$db_user = "mad9022";
+$db_password = "mad9022";
 $db_name = "mad9022";
 
 try{

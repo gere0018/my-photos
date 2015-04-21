@@ -9,7 +9,7 @@ var appClass = function(){
 
     var AjaxConnectionClass = function(id){
         var deviceId = id;
-        var serverIPAddress = "";
+//        var serverIPAddress = "";
         console.log("device id = "+ id);
 
         var req;
@@ -67,12 +67,13 @@ var appClass = function(){
             req.send(postData);
         }
 
-        var list = function(ipaddress){
-            serverIPAddress = ipaddress;
+        var list = function(){
+//            serverIPAddress = ipaddress;
 
-            /* http://faculty.edumedia.ca/griffis/mad9022/final-w15/*/
-            var url = "http://"+serverIPAddress+"/mad9022/my-photos/server/list.php?dev=" + deviceId;
+            /* http://m.edumedia.ca/gere0018/mad9022/final/save.php*/
+            var url = "http://m.edumedia.ca/gere0018/mad9022/final/list.php?dev=" + deviceId;
 
+            console.log(url);
             sendRequest(url, photosGridview.create, null);
 
         }
@@ -83,13 +84,14 @@ var appClass = function(){
 	var postData = "dev=234234&thumb=" + thumbpng + "&img=" + fullpng;
 	sendRequest(url, imgSaved, postData);
             */
-            var url = "http://"+serverIPAddress+"/mad9022/my-photos/server/save.php";
+            var url = "http://m.edumedia.ca/gere0018/mad9022/final/save.php";
             var postData = "dev=" + deviceId +"&thumb=" + thumbImg  + "&img=" + fullImg;
+            console.log(postData);
 	        sendRequest(url, onSave, postData);
         }
 
         var get = function(imgId){
-            var url = "http://"+serverIPAddress+"/mad9022/my-photos/server/get.php?dev=" + deviceId;
+            var url = "http://m.edumedia.ca/gere0018/mad9022/final/get.php?dev=" + deviceId;
                 url += "&img_id="+imgId;
             sendRequest(url, imageObject.displayFullImage, null);
 
@@ -98,7 +100,7 @@ var appClass = function(){
         var remove = function(gridItem){
             var imgId = gridItem.getAttribute("data-ref");
             /* http://localhost:8888/mad9022/final-w15/delete.php?dev=234234&img_id=1*/
-            var url = "http://"+serverIPAddress+"/mad9022/my-photos/server/delete.php?dev=" + deviceId;
+            var url = "http://m.edumedia.ca/gere0018/mad9022/final/delete.php?dev=" + deviceId;
                 url += "&img_id="+imgId;
             sendRequest(url, photosGridview.remove(gridItem), null);
 
@@ -191,7 +193,8 @@ var appClass = function(){
                 canvas.width = imgWidth;
                 canvas.height = imgHeight;
                 context.drawImage(ev.currentTarget, 0, 0);
-                imageObject = new imageClass();
+//                imageObject = new imageClass();
+                console.log("setting thumbnail inside camera success");
                 imageObject.setThumbnail();
             };
             // setting image source to base 64 string
@@ -307,10 +310,12 @@ var appClass = function(){
         }
         var save = function(ev){
             ev.preventDefault();
-
+            console.log("image.save ");
             /* send image base64 encoded string as well as thumbial to server.*/
             var fullImg  = encodeURIComponent (canvas.toDataURL("image/jpeg"));
+            console.log("getting full image");
             var thumbImg = encodeURIComponent (thumbCanvas.toDataURL("image/jpeg"));
+            console.log("getting thumbnail");
             ajaxObject.save(fullImg,
                             thumbImg);
         }
@@ -460,7 +465,7 @@ var appClass = function(){
                         cameraObject.open();
                         break;
                     case "viewPhotos":
-                        ajaxObject.list("192.168.2.19:8888");
+                        ajaxObject.list();
                         var outClass = "pt-page-scaleDown";
                         var inClass = "pt-page-scaleUp";
 
@@ -664,10 +669,10 @@ var appClass = function(){
         uuid = device.uuid;
         console.log(uuid);
 
-        ajaxObject = new AjaxConnectionClass('4488A1EC-FF83-48FA-8883-0F5538411A09'); //234234
+        ajaxObject = new AjaxConnectionClass(uuid); //234234
 
         /* load all thumbnail images from server using ajax*/
-        ajaxObject.list("192.168.2.19:8888");
+        ajaxObject.list();
         /* TODO: add camera preparation code. */
          pictureSource=navigator.camera.PictureSourceType;
          destinationType=navigator.camera.DestinationType;
@@ -685,10 +690,10 @@ var appClass = function(){
         } else {
             console.debug("Running application from desktop browser");
 
-            ajaxObject = new AjaxConnectionClass('4488A1EC-FF83-48FA-8883-0F5538411A09');
+            ajaxObject = new AjaxConnectionClass(uuid);
 
             /* load all thumbnail images from server using ajax*/
-            ajaxObject.list("localhost:8888");
+            ajaxObject.list();
 
         }
 
