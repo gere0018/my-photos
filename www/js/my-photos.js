@@ -88,7 +88,10 @@ var appClass = function(){
 	        sendRequest(url, onSave, postData);
         }
 
-        var get = function(){
+        var get = function(imgId){
+            var url = "http://"+serverIPAddress+"/mad9022/my-photos/server/get.php?dev=" + deviceId;
+                url += "&img_id="+imgId;
+            sendRequest(url, imageObject.displayFullImage, null);
 
         }
 
@@ -276,11 +279,19 @@ var appClass = function(){
             console.log("Thumbnail image is drawn on canvas");
         }
 
+        var displayFullImage = function(xhr){
+            var json = JSON.parse(xhr.responseText);
+            console.log(json.message);
+            var img = document.querySelector('#full-image');
+            img.src = json.data;
+        }
+
         return{
             setText:setText,
             save:save,
             setImage:setImage,
-            setThumbnail: setThumbnail
+            setThumbnail: setThumbnail,
+            displayFullImage: displayFullImage
         }
 
    }
@@ -324,30 +335,16 @@ var appClass = function(){
             delete linksArray; //Free the memory
 
             /* Add modal to the pages array to be capable of applying page transitions for modal windows as well. */
-            var modalsArray = document.querySelectorAll('[data-role="modal"]');
-            var numModals = modalsArray.length;
-            for(var i=0; i< numModals; i++){
-                pages[modalsArray[i].getAttribute("id")] = modalsArray[i];
+            var modal = document.querySelector('[data-role="modal"]');
+            pages[modal.getAttribute("id")] = modal;
 
-                /* Each modal window contains cancel and save button. Add corresponding listeners */
-                var cancelBtn = modalsArray[i].querySelector('input[value="CANCEL"]');
-                var cancelBtnHammerManager = new Hammer(cancelBtn);
-                cancelBtnHammerManager.on('tap', handleCancelTap);
-
-                var saveBtn = modalsArray[i].querySelector('input[value="SAVE"]');
-                var saveBtnHammerManager = new Hammer(saveBtn);
-                saveBtnHammerManager.on('tap', handleSaveTap);
-
-            }
-            delete modalsArray; //Free the memory
 
             doPageTransition(null, "viewPhotos");
 
-            var backBtnsArray = document.querySelectorAll('svg[data-icon-name="back"]');
-            for(var i=0; i<backBtnsArray.length; i++){
-                var backBtnHammerManager = new Hammer(backBtnsArray[i]);
-                backBtnHammerManager.on('tap', handleBackButton);
-            }
+            var backBtn = document.querySelector('svg[data-icon-name="back"]');
+            var backBtnHammerManager = new Hammer(backBtn);
+            backBtnHammerManager.on('tap', handleBackButton);
+
 
             //add listeners to set text and save buttons in take photo page
             var setTextBtn = document.querySelector("#setText");
@@ -387,7 +384,7 @@ var appClass = function(){
                         cameraObject.open();
                         break;
                     case "viewPhotos":
-                        ajaxObject.list("10.70.219.173:8888");
+                        ajaxObject.list("192.168.2.14:8888");
                         break;
                 }
 
@@ -459,9 +456,17 @@ var appClass = function(){
                     console.log("li is tapped");
                     break;
                 case "IMG":
-                    /* TODO: open detailed view modal.*/
-                    /* TODO: get the bigger image from database.*/
-                    console.log("image tag is tapped, enlarge the image");
+                    console.log("image tag is tapped");
+                    /* get the bigger image from database.*/
+                    ajaxObject.get(gridItemId);
+
+                    /* open detailed view modal.*/
+                    var destPageId = "moadl-full-image";
+                    var outClass = "";
+                    var inClass = "pt-page-moveFromBottom";
+
+                    doPageTransition(currentPageId, destPageId, outClass, inClass);
+
                     break;
                 default: // for any part of the svg icon.
                     console.log("svg or part of it is tapped, delete item");
@@ -507,8 +512,10 @@ var appClass = function(){
 
             }else{
 
-                links[srcPageId].classList.remove("active-link");
-                links[destPageId].classList.add("active-link");
+                if("moadl-full-image" != destPageId){
+                    links[srcPageId].classList.remove("active-link");
+                    links[destPageId].classList.add("active-link");
+                }
 
                 pages[destPageId].classList.add("active-page");
                 pages[srcPageId].className  += " "+outClass;
@@ -558,20 +565,7 @@ var appClass = function(){
         //Listener for the popstate event to handle the back button
         var handleBackButton = function (ev){
             ev.preventDefault();
-            var currentPageId = document.URL.split("#")[1];
-
-            switch (currentPageId){
-                case "viewPhotos":
-                    break;
-                case "takePhoto":
-                    break;
-                default:
-                    /*Do nothing*/
-            }
-            var outClass = "pt-page-scaleDown";
-            var inClass = "pt-page-scaleUp";
-
-            doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+            removeModalWindow();
         }
 
         return {
@@ -597,7 +591,7 @@ var appClass = function(){
         ajaxObject = new AjaxConnectionClass(uuid); //234234
 
         /* load all thumbnail images from server using ajax*/
-        ajaxObject.list("10.70.219.173:8888");
+        ajaxObject.list("192.168.2.14:8888");
         /* TODO: add camera preparation code. */
          pictureSource=navigator.camera.PictureSourceType;
          destinationType=navigator.camera.DestinationType;
@@ -615,7 +609,7 @@ var appClass = function(){
         } else {
             console.debug("Running application from desktop browser");
 
-            ajaxObject = new AjaxConnectionClass(234234);
+            ajaxObject = new AjaxConnectionClass('4488A1EC-FF83-48FA-8883-0F5538411A09');
 
             /* load all thumbnail images from server using ajax*/
             ajaxObject.list("localhost:8888");
