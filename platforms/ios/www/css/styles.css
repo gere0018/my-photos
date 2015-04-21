@@ -8,13 +8,23 @@
 
 }
 
+html,body{
+  height: 100%;
+}
+
 body {
   font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
   font-size: 1.2rem;
-  background-image: url("../img/ivory-cream-colored-leather-texture%20copy.jpg");
-  min-height: 100%;
+}
+
+#background{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background-image: url("../img/ivory-cream-colored-leather-texture.jpg");
   background-size: cover;
-  background-attachment: fixed;
   background-repeat: no-repeat;
   background-position: center center;
 }
@@ -59,18 +69,21 @@ html[xmlns] .clearfix {
 /*************************************
         Pages Layout
 *************************************/
-[data-role=page]{
+[data-role="page"]{
   position:absolute;
   z-index:5;
   top:2rem;
   left:0;
   width:100%;
-  display:none;
-  min-height:100%;
+  visibility: hidden;
+  height: 100%;
+  /*min-height:100%;*/
+
   color: #755F48;
 /*    background-image: url("paper.gif");*/
   padding:1rem;
-  overflow: hidden;
+  /*overflow: hidden;*/
+  overflow-y: scroll;
 	-webkit-backface-visibility: hidden;
 	backface-visibility: hidden;
 	-webkit-transform: translate3d(0, 0, 0);
@@ -79,37 +92,59 @@ html[xmlns] .clearfix {
 	transform-style: preserve-3d;
 }
 
-[data-role="page"].active-page {
-           display:block;
-            z-index:10;
+/*************************************
+        Modal Window Styling
+*************************************/
+[data-role="modal"]{
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index:20; /* Make it larger than z-index of both header and footer. */
 }
 
-[data-role=overlay]{
-  display: none;
-  position:fixed;
+[data-role="overlay"]{
+  position:absolute;
   top:0;
   left:0;
-  z-index:10;
+  z-index:20; /* Make it larger than z-index of both header and footer. */
   height:100%;
   width:100%;
-  background-color: rgba(0,0,0,0.82);
+  background-color: #F6F4F1;
+  opacity: 0.82;
 }
 
-[data-role=modal]{
-  display:none;
+[data-role="modal-details"]{
   position:fixed;
-  top:20%;
-  left:10%;
-  width: 80%;
-  z-index:15;
-  max-height:80%;
-  padding:5vh;
-  border:1px solid #B0B0B0;
-  min-height:10%;
-  color:#fff;
-  background-color:#D6789E;
+  top:12%;
+  left:11%;
+  width: 790px;
+  z-index:25; /* Make it larger than z-index of overlay div so that contents can be display. */
+  max-height:90%;
+  margin: 0 auto;
+  border:1px solid #333;
+  min-height:40%;
   box-shadow:1px 1px 2px rgb(0,0,0);
 }
+[data-role="modal-details"] p{
+    margin: 10% 5% 0 5%;
+    text-align: center;
+    font-size: 1.3rem;
+
+
+}
+
+#full-image{
+    width: 100%;
+    height: 100%;
+}
+
+.active-page {
+  visibility: visible;
+}
+
 /*************************************
         view Photos page details
 *************************************/
@@ -117,12 +152,46 @@ html[xmlns] .clearfix {
     text-align: center;
 }
 
+[data-role="gridView"]{
+  list-style:none;
+}
+
+[data-role="gridView"] li{
+  cursor:pointer;
+  width: 180px;
+}
+
+[data-role="gridView"] li img{
+  width: 100%;
+
+}
 
 
 
+/*************************************
+        takePhoto page details
+*************************************/
+#photo-canvas{
+  width: 90%;
+  height: 100%;
+  border: 1px dashed #755F48;
+}
+#takePhoto{
+  overflow-y: hidden;
+}
 
+#takePhoto .col-container{
+  height: 50%;
+}
 
-
+#takePhoto .col-2{
+  float: left;
+  width: 75%;
+  height: 100%;
+}
+#takePhoto .col-2:last-child{
+  width: 25%;
+}
 
 /* ------------ Header ------------ */
 /* -------------------------------- */
@@ -138,14 +207,6 @@ header{
   background-color: #F6F4F1;
   color: #755F48;
   padding: 1rem;
-}
-
-[data-role="gridView"]{
-  list-style:none;
-}
-[data-role="gridView"] li{
-  cursor:pointer;
-
 }
 
 /* ------------- Grid ------------- */
@@ -192,7 +253,7 @@ footer {
     bottom: 0;
     height: 60px; /* same height as header. */
     width: 100%;
-    z-index: 10;
+    z-index: 15;
     font-size: 0.75rem;
 }
 
@@ -208,6 +269,75 @@ color: #755F48;
 .nav [data-role="pagelink"].active-link{
 }
 
+/*************************************
+        Form styling
+*************************************/
+.formBox{
+  padding: 0.6rem 0;
+}
+
+input[type="button"]{
+  /* Stop Safari Mobile from adding rounded corners to input buttons by default.*/
+  -webkit-appearance: none;
+  -webkit-border-radius: 0;
+}
+
+input[type="button"],
+input[type="text"]{
+  border: 0;
+  height: 2.5rem;
+  line-height: 1.6rem;
+  font-size: 1.2rem;
+  padding:0 1rem;
+  width:100%;
+  color: #755F48;
+}
+input[type="text"]:focus,
+input[type="text"]:active{
+  outline: 2px solid #755F48;
+}
+
+
+input[value="CANCEL"],
+input[value="OK"]{
+    width:40%;
+    float: left;
+    margin: 5%;
+    margin-top: 20%;
+}
+input[value="OK"].okAlone{
+    float: none;
+    margin-left: 30%;
+}
+
+.btn{
+    width: 100%;
+    outline: 1px solid #755F48;
+    background-color: #F6F4F1;
+}
+
+.btn:hover,
+.btn:focus,
+.btn:active{
+    color: #F6F4F1;
+    background-color: #755F48;
+
+}
+
+.radio-button{
+  display: block;
+}
+
+fieldset.radiogroup  {
+  padding: 3%
+}
+
+fieldset.radiogroup legend {
+  margin: 0;
+  padding: 0;
+  font-weight: bold;
+  margin-left: 20px;
+}
 
 /*************************************
         SVG Icons styling
@@ -216,6 +346,15 @@ svg[data-icon-name],
 svg[data-icon-animate]{
     width: 32px;
     height: 32px;
+}
+svg[data-icon-name= "back"]{
+    fill:  #755F48;
+    position:fixed;
+    top:6%;
+    left:7%;
+    z-index:25;
+    width: 48px;
+    height: 48px;
 }
 
 

@@ -2,11 +2,397 @@ var appClass = function(){
 
     var pages = {};
     var links = {};
+    var uuid = 0 ;
+    var ajaxObject = {};
+    var pictureSource;   // picture source
+    var destinationType; // sets the format of returned value
+
+    var AjaxConnectionClass = function(id){
+        var deviceId = id;
+//        var serverIPAddress = "";
+        console.log("device id = "+ id);
+
+        var req;
+
+        var createAJAXObj = function () {
+            try {
+                console.log("chrome/ios ajax request");
+                return new XMLHttpRequest();
+            } catch (er1) {
+                try {
+                    return new ActiveXObject("Msxml3.XMLHTTP");
+                } catch (er2) {
+                    try {
+                        return new ActiveXObject("Msxml2.XMLHTTP.6.0");
+                    } catch (er3) {
+                        try {
+                            return new ActiveXObject("Msxml2.XMLHTTP.3.0");
+                        } catch (er4) {
+                            try {
+                                return new ActiveXObject("Msxml2.XMLHTTP");
+                            } catch (er5) {
+                                try {
+                                    return new ActiveXObject("Microsoft.XMLHTTP");
+                                } catch (er6) {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        var sendRequest = function (url, callback, postData) {
+            req = createAJAXObj(), method = (postData) ? "POST" : "GET";
+            if (!req) {
+                return;
+            }
+
+            /* Make sure to use asynchronous ajax call by setting last paramerter to true. */
+            req.open(method, url, true);
+            //req.setRequestHeader('User-Agent', 'XMLHTTP/1.0');
+            if (postData) {
+                req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            }
+            req.onreadystatechange = function () {
+                if (req.readyState !== 4) {
+                    return;
+                }
+                if (req.status !== 200 && req.status !== 304) {
+                    return;
+                }
+                callback(req);
+            }
+            req.send(postData);
+        }
+
+        var list = function(){
+//            serverIPAddress = ipaddress;
+
+            /* http://m.edumedia.ca/gere0018/mad9022/final/save.php*/
+            var url = "http://m.edumedia.ca/gere0018/mad9022/final/list.php?dev=" + deviceId;
+
+            console.log(url);
+            sendRequest(url, photosGridview.create, null);
+
+        }
+
+        var save = function(fullImg,thumbImg){
+            var url = "http://m.edumedia.ca/gere0018/mad9022/final/save.php";
+            var postData = "dev=" + deviceId +"&thumb=" + thumbImg  + "&img=" + fullImg;
+            //console.log(postData);
+	        sendRequest(url, onSave, postData);
+        }
+
+        var get = function(imgId){
+            var url = "http://m.edumedia.ca/gere0018/mad9022/final/get.php?dev=" + deviceId;
+                url += "&img_id="+imgId;
+            sendRequest(url, imageObject.displayFullImage, null);
+
+        }
+
+        var remove = function(gridItem){
+            var imgId = gridItem.getAttribute("data-ref");
+            /* http://localhost:8888/mad9022/final-w15/delete.php?dev=234234&img_id=1*/
+            var url = "http://m.edumedia.ca/gere0018/mad9022/final/delete.php?dev=" + deviceId;
+                url += "&img_id="+imgId;
+            sendRequest(url, photosGridview.remove(gridItem), null);
+
+        }
+
+        var onSave = function (xhr){
+            var json = JSON.parse(xhr.responseText);
+            console.log("Save status code is "+ json.message );
+
+            /* Open modal window for saving new image to database. */
+            var currentPageId = "takePhoto";
+            var destPageId = "modal-save-confirm";
+            var outClass = "";
+            var inClass = "pt-page-moveFromBottom";
+
+            siteNavigator.doPageTransition(currentPageId, destPageId, outClass, inClass);
+        }
+
+        return {
+            list: list,
+            save: save,
+            get: get,
+            remove:remove
+        }
+    }
+
+    var gridviewClass = function(){
+
+        var create = function(xhr){
+            var json = JSON.parse(xhr.responseText);
+            console.log(json.message);
+            var gridview = document.querySelector('[data-role= "gridView"]');
+            var gridviewContent = "";
+
+            /*      <li data-ref="4" class="col-4">
+                       <p> text - 4</p>
+                        <img src="http://www.entropiaplanets.com/w/images/thumb/e/eb/Moblist_thumb_Warlock.png/180px-Moblist_thumb_Warlock.png">
+                        <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
+                    </li>
+            */
+            for (var i=0; i< json["thumbnails"].length;i++){
+                gridviewContent += '<li data-ref="'+json["thumbnails"][i].id +'" class="col-4">';
+                gridviewContent += '<img src="'+json["thumbnails"][i].data+'"/>';
+                gridviewContent += '<svg data-icon-name="delete" viewBox="0 0 400 400"></svg></li>';
+            }
+
+            gridview.innerHTML = gridviewContent;
+            /* load delete buttons in the corresponding svg tags. */
+                var deleteButtonsArray = document.querySelectorAll('svg[data-icon-name="delete"]');
+                console.log(deleteButtonsArray.length);
+                for(var i=0;i<deleteButtonsArray.length;i++){
+                    svgIcons.load(deleteButtonsArray[i], "data-icon-name");
+
+                }
+
+
+        }
+
+        var remove = function(itemToDelete){
+            return function(xhr){
+                /* dismiss modal window. */
+                siteNavigator.removeModalWindow();
+
+                /* TODO: add animation while removing. */
+
+                /* remove item from grid view after waiting for ending of window removal animation*/
+                setTimeout(function(){
+                    itemToDelete.remove();
+                }, 600);
+
+            }
+        }
+
+        return{
+            create: create,
+            remove: remove
+        }
+    }
+
+    var cameraClass = function(){
+        //success function returns the base 64 string of the image
+        var onSuccess = function (imageData) {
+            //Setting canvas width and height to the returned image width and height
+          var canvas = document.querySelector("#photo-canvas");
+            var context = canvas.getContext("2d");
+            var img = document.createElement("img");
+            img.onload = function(ev) {
+                var imgWidth = ev.currentTarget.width;
+                var imgHeight = ev.currentTarget.height;
+                canvas.width = imgWidth;
+                canvas.height = imgHeight;
+                context.drawImage(ev.currentTarget, 0, 0);
+//                imageObject = new imageClass();
+                console.log("setting thumbnail inside camera success");
+                imageObject.setThumbnail();
+            };
+            // setting image source to base 64 string
+            img.src = "data:image/jpeg;base64," + imageData;
+            imageObject.setImage(img, canvas);
+
+
+        }
+
+        var onFail = function(message) {
+            console.log('Failed because: ' + message);
+//            var canvas = document.querySelector("#photo-canvas");
+//            var context = canvas.getContext("2d");
+//            context.clearRect(0, 0, canvas.width, canvas.height);
+//            console.log(canvas.toDataURL());
+//            canvas = null;
+
+        }
+
+        var open = function(){
+            navigator.camera.getPicture(onSuccess, onFail, { quality: 50,
+            destinationType: Camera.DestinationType.DATA_URL
+            });
+            console.log('opened camera');
+
+            /* reset canvas */
+            /* clear any image from canvas for future use. */
+            var canvas = document.querySelector("#photo-canvas");
+            var context = canvas.getContext("2d");
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            setTimeout(function(){
+                /* load take photo page after opening the camera so that the user would find it
+                once he/she takes the photo by the camera.*/
+                var currentPageId = "viewPhotos";
+                var destPageId = "takePhoto";
+                var outClass = "pt-page-scaleDown";
+                var inClass = "pt-page-scaleUp";
+
+                siteNavigator.doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+            },1000);
+
+        }
+        return{
+            open:open
+        }
+
+    }
+
+    var imageClass = function(){
+        var image;
+        var canvas;
+        var thumbCanvas;
+//        var emptyImageBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYAAABkW7XSAAAAAXNSR0IArs4c6QAAAylJREFUeAHt0DEBAAAAwqD1T20IX4hAYcCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYOAdGL/UAAEPpnR6AAAAAElFTkSuQmCC";
+
+        var setText = function(ev){
+            //prevent page reload
+            ev.preventDefault();
+            console.log("set text is called");
+            //if(canvas){
+            if(!isCanvasEmpty()){
+                var context = canvas.getContext("2d");
+                var inputText = document.getElementById("text");
+                var text = inputText.value;
+                var bottomSelect = document.querySelector("#bottomSelect");
+                var darkColor = document.querySelector("#dark");
+                if(text != ""){
+                    /* reset input text. */
+                    inputText.value = "";
+
+                    /* reset focus of the 'SET TEXT' button. */
+                    document.querySelector("#setText").className = "btn";
+
+                    //clear the canvas
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    context.drawImage(image, 0, 0,canvas.width, canvas.height);
+                    //THEN add the new text to the image
+                    var middle = canvas.width / 2;
+                    var bottom = canvas.height - 100;
+                    var top = 100;
+                    context.font = "70px HelveticaNeue";
+                    context.textAlign = "center";
+                    if(darkColor.checked == true){
+                        context.fillStyle = "#755F48";
+                        context.strokeStyle = "#755F48";
+                    }else{
+                        context.fillStyle = "#F6F4F1";
+                        context.strokeStyle = "#F6F4F1";
+                    }
+
+                    if(bottomSelect.checked == true){
+                        context.fillText(text, middle, bottom);
+                        context.strokeText(text, middle, bottom);
+                    }else{
+                        context.fillText(text, middle, top);
+                        context.strokeText(text, middle, top);
+
+                    }
+
+               }else{
+                   /* Display warning message to the user about empty text*/
+                    var currentPageId = "takePhoto";
+                    var destPageId = "modal-empty-text";
+                    var outClass = "";
+                    var inClass = "pt-page-moveFromBottom";
+
+                    siteNavigator.doPageTransition(currentPageId, destPageId, outClass, inClass);
+
+
+                }
+
+            }else{
+                //if there is no image on the canvas
+                    var currentPageId = "takePhoto";
+                    var destPageId = "modal-empty-canvas";
+                    var outClass = "";
+                    var inClass = "pt-page-moveFromBottom";
+
+                    siteNavigator.doPageTransition(currentPageId, destPageId, outClass, inClass);
+
+
+            }
+
+
+        }
+        var save = function(ev){
+            ev.preventDefault();
+            console.log("save button is tapped");
+            /*Check if canvas is not empty*/
+            if(!isCanvasEmpty()){
+                /* send image base64 encoded string as well as thumbial to server.*/
+                var fullImg  = encodeURIComponent (canvas.toDataURL("image/jpeg"));
+                var thumbImg = encodeURIComponent (thumbCanvas.toDataURL("image/jpeg"));
+                ajaxObject.save(fullImg,
+                                thumbImg);
+            }else{
+                    //if there is no image on the canvas
+                    var currentPageId = "takePhoto";
+                    var destPageId = "modal-empty-canvas";
+                    var outClass = "";
+                    var inClass = "pt-page-moveFromBottom";
+
+                    siteNavigator.doPageTransition(currentPageId, destPageId, outClass, inClass);
+
+            }
+        }
+
+        var setImage = function(img, imgCanvas){
+            image = img;
+            canvas = imgCanvas;
+        }
+
+        var setThumbnail = function(){
+            console.log("inside setThumbnail function");
+            /* create temporary canvas to get thumbnail base64 encoded string.*/
+            thumbCanvas = document.createElement("canvas");
+//           thumbCanvas = document.querySelector("#thumb-canvas");
+            var context = thumbCanvas.getContext("2d");
+            var aspectRatio = image.width / image.height;
+            thumbCanvas.width = 180;
+            var th = 180 / aspectRatio;
+            thumbCanvas.height = th;
+
+            image.width = 180;
+            image.height = th;
+            context.drawImage(image, 0, 0,180,th);
+            console.log("Thumbnail image is drawn on canvas");
+        }
+
+        var displayFullImage = function(xhr){
+            var json = JSON.parse(xhr.responseText);
+            console.log(json.message);
+            var img = document.querySelector('#full-image');
+            img.src = json.data;
+        }
+
+        var isCanvasEmpty = function(){
+            if(canvas){
+                var blank = document.createElement('canvas');
+                blank.width = canvas.width;
+                blank.height = canvas.height;
+                return canvas.toDataURL() == blank.toDataURL();
+            }else{
+                return true;
+            }
+
+        }
+
+        return{
+            setText:setText,
+            save:save,
+            setImage:setImage,
+            setThumbnail: setThumbnail,
+            displayFullImage: displayFullImage
+        }
+
+   }
 
     var siteNavigatorClass = function(){
 
         var numPages = 0;
         var numLinks = 0;
+        var gridItemToBeDeleted;
 
         var init = function(){
 
@@ -21,12 +407,12 @@ var appClass = function(){
             delete pagesArray; //Free the memory
 
 
-            var listView = pages["viewPhotos"].querySelector('ul[data-role="gridView"]');
+            var gridView = pages["viewPhotos"].querySelector('ul[data-role="gridView"]');
 
             /* Relate tap and double tap events to list view of contacts using hammer API */
-            var listHammerManager = new Hammer(listView);
+            var gridHammerManager = new Hammer(gridView);
 
-            listHammerManager.on("tap", handleSingleTapGridview);
+            gridHammerManager.on("tap", handleSingleTapGridview);
 
             /* add listener for the main navigation tabs.*/
             var linksArray = document.querySelectorAll('[data-role="pagelink"]');
@@ -41,34 +427,55 @@ var appClass = function(){
             }
             delete linksArray; //Free the memory
 
-            /* Add modal to the pages array to be capable of applying page transitions for modal windows as well. */
-            var modalsArray = document.querySelectorAll('[data-role="modal"]');
-            var numModals = modalsArray.length;
-            for(var i=0; i< numModals; i++){
-                pages[modalsArray[i].getAttribute("id")] = modalsArray[i];
+/* Add modal to the pages array to be capable of applying page transitions for modal windows as well. */
+			var modalsArray = document.querySelectorAll('[data-role="modal"]');
+			var numModals = modalsArray.length;
+			for(var i=0; i< numModals; i++){
+				pages[modalsArray[i].getAttribute("id")] = modalsArray[i];
 
-                /* Each modal window contains cancel and save button. Add corresponding listeners */
-                var cancelBtn = modalsArray[i].querySelector('input[value="CANCEL"]');
-                var cancelBtnHammerManager = new Hammer(cancelBtn);
-                cancelBtnHammerManager.on('tap', handleCancelTap);
+                var okBtn = modalsArray[i].querySelector('input[value="OK"]');
+                if(okBtn){
+                    var okBtnManager = new Hammer(okBtn);
+                    okBtnManager.on('tap', handleOkTap);
+                }
+			}
+			delete modalsArray; //Free the memory
 
-                var saveBtn = modalsArray[i].querySelector('input[value="SAVE"]');
-                var saveBtnHammerManager = new Hammer(saveBtn);
-                saveBtnHammerManager.on('tap', handleSaveTap);
+            /* Add listeners for buttons inside the modal window. */
+            var cancelBtn = pages["modal-delete-confirm"].querySelector('input[value="CANCEL"]');
+            var cancelBtnHammerManager = new Hammer(cancelBtn);
+            cancelBtnHammerManager.on('tap', handleCancelTap);
 
-            }
-            delete modalsArray; //Free the memory
+            var okDeleteBtn = pages["modal-delete-confirm"].querySelector('input[value="OK"]');
+            var okDeleteBtnHammerManager = new Hammer(okDeleteBtn);
+            okDeleteBtnHammerManager.on('tap', handleDeleteConfirm);
 
             doPageTransition(null, "viewPhotos");
+//            doPageTransition(null, "takePhoto");
 
-            var backBtnsArray = document.querySelectorAll('svg[data-icon-name="back"]');
-            for(var i=0; i<backBtnsArray.length; i++){
-                var backBtnHammerManager = new Hammer(backBtnsArray[i]);
-                backBtnHammerManager.on('tap', handleBackButton);
-            }
+            var backBtn = document.querySelector('svg[data-icon-name="back"]');
+            var backBtnHammerManager = new Hammer(backBtn);
+            backBtnHammerManager.on('tap', handleBackButton);
+
+
+            //add listeners to set text and save buttons in take photo page
+            var setTextBtn = document.querySelector("#setText");
+            var saveBtn = document.querySelector("#save");
+            var hammerSetText = new Hammer(setTextBtn);
+            hammerSetText.on('tap', imageObject.setText);
+
+            var hammerSave = new Hammer(saveBtn);
+            hammerSave.on('tap', imageObject.save);
+
+        }
+
+        var handleDeleteConfirm = function(ev){
+            ev.preventDefault();
+            ajaxObject.remove(gridItemToBeDeleted);
         }
 
         var handleSingleTapLink = function(ev){
+            ev.preventDefault();
             /* Get which link item that has been tapped.*/
             var currentTarget = ev.target;
             var linkHref = currentTarget.getAttribute("href");
@@ -82,27 +489,24 @@ var appClass = function(){
                 var destPageId = linkHref.split("#")[1];
                 var currentPageId = document.URL.split("#")[1];
 
-                if(destPageId != currentPageId){
-                    var outClass = "pt-page-scaleDown";
-                    var inClass = "pt-page-scaleUp";
+                switch(destPageId){
+                    case "takePhoto":
+                        cameraObject.open();
+                        break;
+                    case "viewPhotos":
+                        ajaxObject.list();
+                        var outClass = "pt-page-scaleDown";
+                        var inClass = "pt-page-scaleUp";
 
-                    doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+                        doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+
+                        break;
                 }
             }
         }
 
         var handleCancelTap = function(ev){
-
-            var currentPageId = document.URL.split("#")[1];
-            switch(currentPageId){
-                case "viewPhotos":
-                    break;
-                case "takePhoto":
-                    break;
-                default:
-                    /*Do nothing*/
-            }
-
+            ev.preventDefault();
             removeModalWindow();
         }
 
@@ -117,55 +521,70 @@ var appClass = function(){
             }, 600);
         }
 
-        var handleSaveTap = function(ev){
+        var handleOkTap = function(ev){
             /* prevent page from reloading*/
             ev.preventDefault();
 
-            var currentPageId = document.URL.split("#")[1];
-            switch(currentPageId){
-                case "takePhoto":
-
-                default:
-                    /* Do nothing*/
-            }
             removeModalWindow();
+
+            if("ok-save" ==  ev.target.getAttribute("id")){
+                /* clear any image from canvas for future use. */
+                var canvas = document.querySelector("#photo-canvas");
+                var context = canvas.getContext("2d");
+                context.clearRect(0, 0, canvas.width, canvas.height);
+            }
         }
-
-
 
         var handleSingleTapGridview = function(ev){
 
             var currentPageId = document.URL.split("#")[1];
-            console.log("Single tap event has been recognized inside page:"+currentPageId);
+            console.log("Single tap event has been recognized on grid");
 
             /* Get which list item that has been tapped.*/
             var currentTarget = ev.target;
-            var listItemId = currentTarget.getAttribute("data-ref");
-            while(!listItemId){
+
+            /*Get HTML type of the tapped element. */
+            var htmlType = currentTarget.nodeName;
+
+            var gridItemId = currentTarget.getAttribute("data-ref");
+            while(!gridItemId){
                 currentTarget = currentTarget.parentNode;
-                listItemId = currentTarget.getAttribute("data-ref");
+                gridItemId = currentTarget.getAttribute("data-ref");
             }
-            var listItem = currentTarget;
 
-            /* Make sure that we find a valid list item */
-            if(listItemId){
-                switch (currentPageId){
-                    case "viewPhotos":
-                        /* TODO: trigger ajax to get bigger image size for the thumbnail. */
-                        break;
-                    case "takePhoto":
-                        break;
-                    default:
-                        /*Do nothing*/
-                }
+            // var gridItemId = currentTarget;
+            switch(htmlType){
+                case "LI":
+                    /* This matches tapping on margin between two list items, so
+                       Do nothing, user must clicked on img or delete svg icon.*/
+                    console.log("li is tapped");
+                    break;
+                case "IMG":
+                    console.log("image tag is tapped");
+                    /* get the bigger image from database.*/
+                    ajaxObject.get(gridItemId);
 
-                var outClass = "pt-page-scaleDown";
-                var inClass = "pt-page-scaleUp";
+                    /* open detailed view modal.*/
+                    var destPageId = "modal-full-image";
+                    var outClass = "";
+                    var inClass = "pt-page-moveFromBottom";
 
-                doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+                    doPageTransition(currentPageId, destPageId, outClass, inClass);
 
-            }else{
-                console.error("Failed to find valid list item id");
+                    break;
+                default: // for any part of the svg icon.
+                    console.log("svg or part of it, is tapped, delete item");
+                    gridItemToBeDeleted = currentTarget;
+
+                    /* Open modal window for confirmation delete*/
+                    var destPageId = "modal-delete-confirm";
+                    var outClass = "";
+                    var inClass = "pt-page-moveFromBottom";
+
+                    doPageTransition(currentPageId, destPageId, outClass, inClass);
+
+
+                    break;
             }
         }
 
@@ -190,8 +609,11 @@ var appClass = function(){
 
             }else{
 
-                links[srcPageId].classList.remove("active-link");
-                links[destPageId].classList.add("active-link");
+                /* If this is modal window, dont change the active link. */
+                if(-1 == destPageId.indexOf("modal-")){
+                    links[srcPageId].classList.remove("active-link");
+                    links[destPageId].classList.add("active-link");
+                }
 
                 pages[destPageId].classList.add("active-page");
                 pages[srcPageId].className  += " "+outClass;
@@ -241,31 +663,31 @@ var appClass = function(){
         //Listener for the popstate event to handle the back button
         var handleBackButton = function (ev){
             ev.preventDefault();
-            var currentPageId = document.URL.split("#")[1];
+            removeModalWindow();
 
-            switch (currentPageId){
-                case "viewPhotos":
-                    break;
-                case "takePhoto":
-                    break;
-                default:
-                    /*Do nothing*/
-            }
-            var outClass = "pt-page-scaleDown";
-            var inClass = "pt-page-scaleUp";
+            /* wait until window remove animation is finished. */
+            setTimeout(function(){
+                /* reset image tag in the modal window for future uses */
+                pages["modal-full-image"].querySelector("#full-image").remove();
+                var img = document.createElement("img");
+                img.setAttribute("id","full-image");
 
-            doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+                pages["modal-full-image"].querySelector('[data-role="modal-details"]').appendChild(img);
+            },600);
         }
 
         return {
-                    init : init
+                    init : init,
+                    removeModalWindow: removeModalWindow,
+                    doPageTransition: doPageTransition
         }
     };
 
-    console.log("Going to load svg images");
     var svgIcons = new svgClass();
     var siteNavigator = new siteNavigatorClass();
-
+    var photosGridview = new gridviewClass();
+    var cameraObject = new cameraClass();
+    var imageObject = new imageClass();
     var init = function(){
         document.addEventListener("deviceready", onDeviceReady, false);
         document.addEventListener("DOMContentLoaded", onPageLoaded, false);
@@ -273,7 +695,16 @@ var appClass = function(){
 
     var onDeviceReady = function(){
         console.log("Device is ready");
+        uuid = device.uuid;
+        console.log(uuid);
+
+        ajaxObject = new AjaxConnectionClass(uuid); //234234
+
+        /* load all thumbnail images from server using ajax*/
+        ajaxObject.list();
         /* TODO: add camera preparation code. */
+         pictureSource=navigator.camera.PictureSourceType;
+         destinationType=navigator.camera.DestinationType;
     }
 
     var onPageLoaded = function(){
@@ -287,12 +718,16 @@ var appClass = function(){
             /* Do nothing. */
         } else {
             console.debug("Running application from desktop browser");
+
+            ajaxObject = new AjaxConnectionClass(uuid);
+
+            /* load all thumbnail images from server using ajax*/
+            ajaxObject.list();
+
         }
 
         //add button and navigation listeners
         siteNavigator.init();
-        prepareDelete();
-
     }
 
     return {

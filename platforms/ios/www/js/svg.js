@@ -212,6 +212,7 @@ var svgClass = function(){
                 rotate: rotate,
                 startAnimation: startAnimation,
                 fireAnimation: fireAnimation,
-                loadForSelfDrawing: loadForSelfDrawing
+                loadForSelfDrawing: loadForSelfDrawing,
+                load: load
         }
     };

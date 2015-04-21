@@ -333,7 +333,6 @@ var appClass = function(){
                     var inClass = "pt-page-moveFromBottom";
 
                     siteNavigator.doPageTransition(currentPageId, destPageId, outClass, inClass);
-
             }
         }
 
@@ -368,10 +367,14 @@ var appClass = function(){
 
         var isCanvasEmpty = function(){
             if(canvas){
-                return false;
+                var blank = document.createElement('canvas');
+                blank.width = canvas.width;
+                blank.height = canvas.height;
+                return canvas.toDataURL() == blank.toDataURL();
             }else{
                 return true;
             }
+
         }
 
         return{
