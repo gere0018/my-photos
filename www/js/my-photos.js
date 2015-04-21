@@ -173,14 +173,9 @@ var appClass = function(){
             }
         }
 
-        var append = function(){
-
-        }
-
         return{
             create: create,
-            remove: remove,
-            append: append
+            remove: remove
         }
     }
 
@@ -481,7 +476,7 @@ var appClass = function(){
                     ajaxObject.get(gridItemId);
 
                     /* open detailed view modal.*/
-                    var destPageId = "moadl-full-image";
+                    var destPageId = "modal-full-image";
                     var outClass = "";
                     var inClass = "pt-page-moveFromBottom";
 
@@ -502,22 +497,6 @@ var appClass = function(){
 
                     break;
             }
-
-            // /* Make sure that we find a valid list item */
-            // if(gridItemId){
-
-            //     /* TODO: Delete image from database.*/
-
-            //     /* Delete item from grid view.*/
-
-            //     var outClass = "pt-page-scaleDown";
-            //     var inClass = "pt-page-scaleUp";
-
-            //     // doPageTransition(currentPageId,destPageId,outClass,inClass,true);
-
-            // }else{
-            //     console.error("Failed to find valid grid item id");
-            // }
         }
 
         //Deal with history API and switching divs
@@ -596,6 +575,16 @@ var appClass = function(){
         var handleBackButton = function (ev){
             ev.preventDefault();
             removeModalWindow();
+
+            /* wait until window remove animation is finished. */
+            setTimeout(function(){
+                /* reset image tag in the modal window for future uses */
+                pages["modal-full-image"].querySelector("#full-image").remove();
+                var img = document.createElement("img");
+                img.setAttribute("id","full-image");
+
+                pages["modal-full-image"].querySelector('[data-role="modal-details"]').appendChild(img);
+            },600);
         }
 
         return {
