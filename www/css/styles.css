@@ -125,8 +125,15 @@ html[xmlns] .clearfix {
   max-height:90%;
   margin: 0 auto;
   border:1px solid #333;
-  min-height:10%;
+  min-height:40%;
   box-shadow:1px 1px 2px rgb(0,0,0);
+}
+[data-role="modal-details"] p{
+    margin: 10% 5% 0 5%;
+    text-align: center;
+    font-size: 1.3rem;
+
+
 }
 
 #full-image{
@@ -156,6 +163,7 @@ html[xmlns] .clearfix {
 
 [data-role="gridView"] li img{
   width: 100%;
+
 }
 
 
@@ -288,6 +296,19 @@ input[type="submit"]{
 input[type="text"]:focus,
 input[type="text"]:active{
   outline: 2px solid #755F48;
+}
+
+
+input[value="CANCEL"],
+input[value="OK"]{
+    width:40%;
+    float: left;
+    margin: 5%;
+    margin-top: 20%;
+}
+input[value="OK"].okAlone{
+    float: none;
+    margin-left: 30%;
 }
 
 .btn{

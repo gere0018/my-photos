@@ -26,7 +26,6 @@
                 <div class="col-container clearfix">
                     <div class="col-2">
                         <canvas id="photo-canvas"></canvas>
-<!--                        <canvas id="thumb-canvas"></canvas>-->
                     </div>
                     <div class="col-2">
                         <form>
@@ -41,21 +40,22 @@
                                         <label for="top-placement">Top</label>
                                     </div>
                                     <div class="radio-button">
-                                        <input type="radio" name="radio-group" value="bottom-placement" id="bottom-placement">
+                                        <input type="radio" id = "bottomSelect" name="radio-group" value="bottom-placement" id="bottom-placement">
                                         <label for="">Botttom</label>
                                     </div>
                                 </fieldset>
                             </div>
                             <div class="formBox">
-                                <input type="submit" class="btn" id = "setText" value="Set Text" />
+                                <input type="button" class="btn" id = "setText" value="Set Text" />
                             </div>
                             <div class="formBox">
-                                <input type="submit" class="btn" id = "save" value="SAVE" />
+                                <input type="button" class="btn" id = "save" value="SAVE" />
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
+<!-- ************************** full image display modal ***************************  -->
 
     <section data-role="modal" id="modal-full-image">
         <svg data-icon-name="back" viewBox="0 0 400 400"></svg>
@@ -64,6 +64,7 @@
             <img id="full-image"/>
         </div>
     </section>
+<!-- ************************** confirm delete modal ***************************  -->
 
    <section data-role="modal" id="modal-delete-confirm">
        <div data-role="overlay">&nbsp;</div>
@@ -71,12 +72,13 @@
             <p>Are you sure you want to delete this photo?</p>
             <form>
                 <div class="formBox">
-                    <input type="submit" class="btn" value="CANCEL" />
-                    <input type="submit" class="btn" value="OK" />
+                    <input type="button" class="btn" value="CANCEL" />
+                    <input type="button" class="btn" value="OK" />
                 </div>
-            </form>/
+            </form>
         </div>
     </section>
+<!-- ************************** confirmed save modal ***************************  -->
 
    <section data-role="modal" id="modal-save-confirm">
        <div data-role="overlay">&nbsp;</div>
@@ -84,7 +86,31 @@
             <p>Your image is saved to MyPhotos</p>
             <form>
                 <div class="formBox">
-                    <input type="submit" class="btn" id="ok-save" value="OK" />
+                    <input type="button" class="btn okAlone" id="ok-save" value="OK" />
+                </div>
+            </form>
+        </div>
+    </section>
+<!-- ************************** empty text alert modal ***************************  -->
+    <section data-role="modal" id="modal-empty-text">
+       <div data-role="overlay">&nbsp;</div>
+        <div data-role="modal-details" >
+            <p>You have not entered any text. Please eneter some text so that you can add it to the canvas.</p>
+            <form>
+                <div class="formBox">
+                    <input type="button" class="btn okAlone"  value="OK" />
+                </div>
+            </form>
+        </div>
+    </section>
+<!-- ************************** empty canvas alert modal ***************************  -->
+    <section data-role="modal" id="modal-empty-canvas">
+       <div data-role="overlay">&nbsp;</div>
+        <div data-role="modal-details" >
+            <p>There is no image on the canvas. Take a photo by tapping the camera icon and then you can set you text on it.</p>
+            <form>
+                <div class="formBox">
+                    <input type="button" class="btn okAlone"  value="OK" />
                 </div>
             </form>
         </div>

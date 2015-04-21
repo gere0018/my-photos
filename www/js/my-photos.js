@@ -191,6 +191,7 @@ var appClass = function(){
                 canvas.width = imgWidth;
                 canvas.height = imgHeight;
                 context.drawImage(ev.currentTarget, 0, 0);
+                imageObject = new imageClass();
                 imageObject.setThumbnail();
             };
             // setting image source to base 64 string
@@ -215,14 +216,16 @@ var appClass = function(){
             var context = canvas.getContext("2d");
             context.clearRect(0, 0, canvas.width, canvas.height);
 
-            /* load take photo page after opening the camera so that the user would find it
-            once he/she takes the photo by the camera.*/
-            var currentPageId = "viewPhotos";
-            var destPageId = "takePhoto";
-            var outClass = "pt-page-scaleDown";
-            var inClass = "pt-page-scaleUp";
+            setTimeout(function(){
+                /* load take photo page after opening the camera so that the user would find it
+                once he/she takes the photo by the camera.*/
+                var currentPageId = "viewPhotos";
+                var destPageId = "takePhoto";
+                var outClass = "pt-page-scaleDown";
+                var inClass = "pt-page-scaleUp";
 
-            siteNavigator.doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+                siteNavigator.doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+            },1000);
 
         }
         return{
@@ -237,38 +240,69 @@ var appClass = function(){
         var thumbCanvas;
 
         var setText = function(ev){
-
+            //prevent page reload
             ev.preventDefault();
-
             console.log("set text is called");
-            var context = canvas.getContext("2d");
-            var inputText = document.getElementById("text");
-            var text = inputText.value;
-            if(text != ""){
-                /* reset input text. */
-                inputText.value = "";
+            //if(canvas){
+            if(canvas && (canvas.toDataURL() != document.createElement('canvas').toDataURL())){
+                var context = canvas.getContext("2d");
+                var inputText = document.getElementById("text");
+                var text = inputText.value;
+                var bottomSelect = document.querySelector("#bottomSelect");
+                if(text != ""){
+                    /* reset input text. */
+                    inputText.value = "";
 
-                /* reset focus of the 'SET TEXT' button. */
-                document.querySelector("#setText").className = "btn";
+                    /* reset focus of the 'SET TEXT' button. */
+                    document.querySelector("#setText").className = "btn";
 
-                //clear the canvas
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                //reload the image
-//                var w = image.width;
-//                var h = image.height;
-                context.drawImage(image, 0, 0,canvas.width, canvas.height);
-                //THEN add the new text to the image
-                var middle = canvas.width / 2;
-                var bottom = canvas.height - 50;
-                context.font = "75px HelveticaNeue";
-                context.fillStyle = "#755F48";
-                context.strokeStyle = "#755F48";
-                context.textAlign = "center";
-                context.fillText(text, middle, bottom);
-                context.strokeText(text, middle, bottom);
-           }else{
-               /* TODO: Display warning message to the user about empty text*/
-           }
+                    //clear the canvas
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    //reload the image
+    //                var w = image.width;
+    //                var h = image.height;
+                    context.drawImage(image, 0, 0,canvas.width, canvas.height);
+                    //THEN add the new text to the image
+                    var middle = canvas.width / 2;
+                    var bottom = canvas.height - 50;
+                    var top = canvas.height - 400
+                    context.font = "30px HelveticaNeue";
+                    context.fillStyle = "#755F48";
+                    context.strokeStyle = "#755F48";
+                    context.textAlign = "center";
+                    if(bottomSelect.checked == true){
+                        context.fillText(text, middle, bottom);
+                        context.strokeText(text, middle, bottom);
+                    }else{
+                        context.fillText(text, middle, top);
+                        context.strokeText(text, middle, top);
+
+                    }
+
+               }else{
+                   /* Display warning message to the user about empty text*/
+                    var currentPageId = "takePhoto";
+                    var destPageId = "modal-empty-text";
+                    var outClass = "";
+                    var inClass = "pt-page-moveFromBottom";
+
+                    siteNavigator.doPageTransition(currentPageId, destPageId, outClass, inClass);
+
+
+                }
+
+            }else{
+                //if there is no image on the canvas
+                    var currentPageId = "takePhoto";
+                    var destPageId = "modal-empty-canvas";
+                    var outClass = "";
+                    var inClass = "pt-page-moveFromBottom";
+
+                    siteNavigator.doPageTransition(currentPageId, destPageId, outClass, inClass);
+
+
+            }
+
 
         }
         var save = function(ev){
@@ -364,6 +398,12 @@ var appClass = function(){
 			var numModals = modalsArray.length;
 			for(var i=0; i< numModals; i++){
 				pages[modalsArray[i].getAttribute("id")] = modalsArray[i];
+
+                var okBtn = modalsArray[i].querySelector('input[value="OK"]');
+                if(okBtn){
+                    var okBtnManager = new Hammer(okBtn);
+                    okBtnManager.on('tap', handleOkTap);
+                }
 			}
 			delete modalsArray; //Free the memory
 
@@ -376,12 +416,8 @@ var appClass = function(){
             var okDeleteBtnHammerManager = new Hammer(okDeleteBtn);
             okDeleteBtnHammerManager.on('tap', handleDeleteConfirm);
 
-            var okBtn = pages["modal-save-confirm"].querySelector('#ok-save');
-            var okBtnManager = new Hammer(okBtn);
-            okBtnManager.on('tap', handleOkTap);
-
-
             doPageTransition(null, "viewPhotos");
+//            doPageTransition(null, "takePhoto");
 
             var backBtn = document.querySelector('svg[data-icon-name="back"]');
             var backBtnHammerManager = new Hammer(backBtn);
@@ -457,10 +493,12 @@ var appClass = function(){
 
             removeModalWindow();
 
-            /* clear any image from canvas for future use. */
-            var canvas = document.querySelector("#photo-canvas");
-            var context = canvas.getContext("2d");
-            context.clearRect(0, 0, canvas.width, canvas.height);
+            if("ok-save" ==  ev.target.getAttribute("id")){
+                /* clear any image from canvas for future use. */
+                var canvas = document.querySelector("#photo-canvas");
+                var context = canvas.getContext("2d");
+                context.clearRect(0, 0, canvas.width, canvas.height);
+            }
         }
 
         var handleSingleTapGridview = function(ev){
@@ -626,7 +664,7 @@ var appClass = function(){
         uuid = device.uuid;
         console.log(uuid);
 
-        ajaxObject = new AjaxConnectionClass(uuid); //234234
+        ajaxObject = new AjaxConnectionClass('4488A1EC-FF83-48FA-8883-0F5538411A09'); //234234
 
         /* load all thumbnail images from server using ajax*/
         ajaxObject.list("192.168.2.19:8888");
