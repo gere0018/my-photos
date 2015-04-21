@@ -208,6 +208,22 @@ var appClass = function(){
             destinationType: Camera.DestinationType.DATA_URL
             });
             console.log('opened camera');
+
+            /* reset canvas */
+            /* clear any image from canvas for future use. */
+            var canvas = document.querySelector("#photo-canvas");
+            var context = canvas.getContext("2d");
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            /* load take photo page after opening the camera so that the user would find it
+            once he/she takes the photo by the camera.*/
+            var currentPageId = "viewPhotos";
+            var destPageId = "takePhoto";
+            var outClass = "pt-page-scaleDown";
+            var inClass = "pt-page-scaleUp";
+
+            siteNavigator.doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+
         }
         return{
             open:open
@@ -403,22 +419,19 @@ var appClass = function(){
                 var destPageId = linkHref.split("#")[1];
                 var currentPageId = document.URL.split("#")[1];
 
-                if(destPageId != currentPageId){
-                    var outClass = "pt-page-scaleDown";
-                    var inClass = "pt-page-scaleUp";
-
-                    doPageTransition(currentPageId,destPageId,outClass,inClass,true);
-                }
-
                 switch(destPageId){
                     case "takePhoto":
                         cameraObject.open();
                         break;
                     case "viewPhotos":
                         ajaxObject.list("192.168.2.19:8888");
+                        var outClass = "pt-page-scaleDown";
+                        var inClass = "pt-page-scaleUp";
+
+                        doPageTransition(currentPageId,destPageId,outClass,inClass,true);
+
                         break;
                 }
-
             }
         }
 
