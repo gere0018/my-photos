@@ -38,7 +38,7 @@ if( isset( $_POST['dev'] ) && isset($_POST['img']) && isset($_POST['thumb']) ){
     }else{
         //failed to run query.... error
         $errorArray = $rs->errorInfo( );
-        echo '{"code":543, "message":"Unable to save the image in the database at this time. SQL Error Code: ' . $errorArray[0] . '"}';
+        echo '{"code":543, "message":"Unable to save the image in the database at this time. SQL Error Code: ' . $errorArray[0] .' -- '. $errorArray[1].'"}';
     }
 }else{
     //no device id provided
