@@ -9,7 +9,6 @@ var appClass = function(){
 
     var AjaxConnectionClass = function(id){
         var deviceId = id;
-//        var serverIPAddress = "";
         console.log("device id = "+ id);
 
         var req;
@@ -130,12 +129,6 @@ var appClass = function(){
             var gridview = document.querySelector('[data-role= "gridView"]');
             var gridviewContent = "";
 
-            /*      <li data-ref="4" class="col-4">
-                       <p> text - 4</p>
-                        <img src="http://www.entropiaplanets.com/w/images/thumb/e/eb/Moblist_thumb_Warlock.png/180px-Moblist_thumb_Warlock.png">
-                        <svg data-icon-name="delete" viewBox="0 0 400 400"></svg>
-                    </li>
-            */
             for (var i=0; i< json["thumbnails"].length;i++){
                 gridviewContent += '<li data-ref="'+json["thumbnails"][i].id +'" class="col-4">';
                 gridviewContent += '<img src="'+json["thumbnails"][i].data+'"/>';
@@ -201,12 +194,6 @@ var appClass = function(){
 
         var onFail = function(message) {
             console.log('Failed because: ' + message);
-//            var canvas = document.querySelector("#photo-canvas");
-//            var context = canvas.getContext("2d");
-//            context.clearRect(0, 0, canvas.width, canvas.height);
-//            console.log(canvas.toDataURL());
-//            canvas = null;
-
         }
 
         var open = function(){
@@ -243,8 +230,6 @@ var appClass = function(){
         var image;
         var canvas;
         var thumbCanvas;
-//        var emptyImageBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYAAABkW7XSAAAAAXNSR0IArs4c6QAAAylJREFUeAHt0DEBAAAAwqD1T20IX4hAYcCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYOAdGL/UAAEPpnR6AAAAAElFTkSuQmCC";
-
         var setText = function(ev){
             //prevent page reload
             ev.preventDefault();
@@ -690,6 +675,7 @@ var appClass = function(){
     var init = function(){
         document.addEventListener("deviceready", onDeviceReady, false);
         document.addEventListener("DOMContentLoaded", onPageLoaded, false);
+        document.addEventListener("keypress", handleGoBtn, false);
     }
 
     var onDeviceReady = function(){
@@ -727,6 +713,19 @@ var appClass = function(){
 
         //add button and navigation listeners
         siteNavigator.init();
+    }
+
+    var handleGoBtn = function(ev){
+        console.log("key pressed");
+        if(ev.keyCode==13){
+            //stop page from reloading
+            ev.preventDefault();
+            //close the keyboard. this action was disabled because of prevent default.
+            document.activeElement.blur();
+             console.log("go btn");
+             imageObject.setText(ev);
+        }
+
     }
 
     return {
