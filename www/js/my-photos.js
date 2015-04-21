@@ -254,9 +254,9 @@ var appClass = function(){
                 //clear the canvas
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 //reload the image
-                var w = image.width;
-                var h = image.height;
-                context.drawImage(image, 0, 0, w, h);
+//                var w = image.width;
+//                var h = image.height;
+                context.drawImage(image, 0, 0,canvas.width, canvas.height);
                 //THEN add the new text to the image
                 var middle = canvas.width / 2;
                 var bottom = canvas.height - 50;
@@ -376,7 +376,7 @@ var appClass = function(){
             var okDeleteBtnHammerManager = new Hammer(okDeleteBtn);
             okDeleteBtnHammerManager.on('tap', handleDeleteConfirm);
 
-            var okBtn = pages["modal-save-confirm"].querySelector('input[value="OK"]');
+            var okBtn = pages["modal-save-confirm"].querySelector('#ok-save');
             var okBtnManager = new Hammer(okBtn);
             okBtnManager.on('tap', handleOkTap);
 
